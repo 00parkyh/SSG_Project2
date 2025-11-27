@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.outbound.mappers.OutboundOrderMapper">
+
+    <!-- 출고요청 목록 매핑 -->
+    <resultMap id="ShipmentRequestListMap" type="com.ssg.wms.outbound.domain.dto.OutboundDTO">
+        <id property="outboundRequestID" column="outboundRequestID"/>
+        <result property="outboundDate" column="outboundDate"/>
+        <result property="approvedStatus" column="approvedStatus"/>
+        <result property="memberName" column="member_name"/>
+        <result property="productName" column="product_name"/>
+    </resultMap>
+
+    <!-- 출고지시 상세 매핑 -->
+    <resultMap id="ShipmentOrderDetailMap" type="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
+        <id property="approvedOrderID" column="approvedOrder_ID"/>
+        <result property="dispatchId" column="dispatch_ID"/>
+        <result property="carId" column="carId"/>
+        <result property="carType" column="carType"/>
+        <result property="driverName" column="driverName"/>
+        <result property="dispatchStatus" column="dispatchStatus"/>
+        <result property="loadedBox" column="loadedBox"/>
+        <result property="maximumBOX" column="maximumBox"/>
+        <result property="waybillNumber" column="waybillNumber"/>
+        <result property="waybillStatus" column="waybillStatus"/>
+        <result property="warehouseId" column="warehouseId"/>
+        <result property="warehouseName" column="warehouseName"/>
+    </resultMap>
+
+    <!-- 출고지시서 목록 매핑 -->
+    <resultMap id="OutboundOrderListMap" type="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
+        <id property="approvedOrderID" column="approvedOrderID"/>
+        <result property="outboundRequestID" column="outboundRequestID"/>
+        <result property="instructionNo" column="instructionNo"/>
+        <result property="outboundDate" column="outboundDate"/>
+        <result property="approvedStatus" column="approvedStatus"/>
+        <result property="partnerName" column="partnerName"/>
+        <result property="driverName" column="driverName"/>
+        <result property="warehouseId" column="warehouseId"/>
+        <result property="warehouseName" column="warehouseName"/>
+    </resultMap>
+
+    <!-- 출고지시서 전체 목록 -->
+    <select id="getAllOrders" resultMap="OutboundOrderListMap">
+        SELECT
+        o.approvedOrder_ID AS approvedOrderID,
+        r.outboundRequest_ID AS outboundRequestID,
+        o.instructionNo AS instructionNo,
+        r.outboundDate,
+        r.approvedStatus,
+        p.partner_name AS partnerName,
+        m.member_name AS driverName,
+        w.warehouse_id AS warehouseId,
+        w.name AS warehouseName
+        FROM outboundRequest r
+        LEFT JOIN outboundOrder o
+        ON r.outboundRequest_ID = o.outboundRequest_ID
+        LEFT JOIN member m
+        ON r.member_id = m.member_id
+        LEFT JOIN partner p
+        ON m.partner_id = p.partner_id
+        LEFT JOIN WAREHOUSE w
+        ON r.warehouse_id = w.warehouse_id
+        ORDER BY r.outboundDate DESC
+    </select>
+
+    <!-- 필터링된 출고오더 조회 -->
+    <select id="getFilteredOrders" resultType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
+        SELECT
+        so.approvedOrder_ID,
+        sr.outboundRequest_ID,
+        sr.outboundDate,
+        sr.approvedStatus,
+        Pt.partner_name,
+        Pd.product_name,
+        M.member_name
+        FROM outboundOrder so
+        INNER JOIN outboundRequest sr ON so.outboundRequest_ID = sr.outboundRequest_ID
+        INNER JOIN outboundItem si ON sr.outboundRequest_ID = si.outboundRequest_ID
+        INNER JOIN Product Pd ON si.Product_ID = Pd.product_id
+        INNER JOIN Partner Pt ON Pd.partner_id = Pt.partner_id
+        INNER JOIN Member M ON sr.member_id = M.member_id
+        <where>
+            <choose>
+                <when test="filterType == 'STATUS'">
+                    AND sr.approvedStatus = #{searchValue}
+                </when>
+                <when test="filterType == 'REQUESTER_NAME'">
+                    AND M.member_name LIKE CONCAT('%', #{searchValue}, '%')
+                </when>
+                <when test="filterType == 'REQUESTER_ID'">
+                    AND sr.member_id = #{searchValue}
+                </when>
+                <otherwise>
+                    AND 1=1
+                </otherwise>
+            </choose>
+        </where>
+        GROUP BY so.approvedOrder_ID
+        ORDER BY so.approvedOrder_ID DESC
+    </select>
+
+    <!-- 출고지시서 상세 조회 -->
+    <select id="getOrderDetailById" resultMap="ShipmentOrderDetailMap">
+        SELECT
+        o.approvedOrder_ID AS approvedOrder_ID,
+        o.outboundRequest_ID,
+        o.orderStatus,
+        r.outboundDate,
+        r.approvedStatus,
+        p.partner_name AS partnerName,
+        d.dispatch_ID AS dispatch_ID,
+        d.carID AS carId,
+        d.Cartype AS carType,
+        d.driverName AS driverName,
+        d.dispatchStatus AS dispatchStatus,
+        d.loadedBOX AS loadedBox,
+        d.maximumBOX AS maximumBox,
+        d.warehouseId AS warehouseId,
+        w.name AS warehouseName
+        FROM outboundOrder o
+        LEFT JOIN outboundRequest r ON o.outboundRequest_ID = r.outboundRequest_ID
+        LEFT JOIN dispatch d ON d.approvedOrder_ID = o.approvedOrder_ID
+        LEFT JOIN member m ON r.member_id = m.member_id
+        LEFT JOIN partner p ON m.partner_id = p.partner_id
+        LEFT JOIN WAREHOUSE w ON d.warehouseId = w.warehouse_id
+        WHERE o.approvedOrder_ID = #{approvedOrderId}
+    </select>
+
+    <!-- ✅ 1. 출고지시서 상태만 업데이트 -->
+    <update id="updateOrderStatus">
+        UPDATE outboundOrder
+        SET
+        orderStatus = #{approvedStatus},
+        approvedDate = NOW()
+        WHERE approvedOrder_ID = #{approvedOrderID}
+    </update>
+
+
+    <!-- ✅ 2. 출고요청 상태 업데이트 -->
+    <update id="updateOutboundRequestStatus">
+        UPDATE outboundRequest
+        SET
+        approvedStatus = #{approvedStatus},
+        warehouse_id = #{warehouseId}
+        WHERE outboundRequest_ID = (
+        SELECT outboundRequest_ID
+        FROM outboundOrder
+        WHERE approvedOrder_ID = #{approvedOrderId}
+        )
+    </update>
+
+    <insert id="upsertDispatch" parameterType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
+        INSERT INTO dispatch (
+        approvedOrder_ID,
+        carID,
+        Cartype,
+        driverName,
+        assignedDate,
+        dispatchStatus,
+        loadedBOX,
+        maximumBOX,
+        warehouseId
+        ) VALUES (
+        #{approvedOrderID},
+        #{carId},
+        #{carType},
+        #{driverName},
+        NOW(),
+        #{dispatchStatus},
+        #{loadedBox},
+        #{maximumBOX},
+        #{warehouseId}
+        )
+        ON DUPLICATE KEY UPDATE
+        carID = #{carId},
+        Cartype = #{carType},
+        driverName = #{driverName},
+        assignedDate = NOW(),
+        dispatchStatus = #{dispatchStatus},
+        loadedBOX = #{loadedBox},
+        maximumBOX = #{maximumBOX},
+        warehouseId = #{warehouseId}
+    </insert>
+
+    <!-- ⭐ 4. 기존 배차가 있는지 확인 -->
+    <select id="checkDispatchExists" resultType="int">
+        SELECT COUNT(*)
+        FROM dispatch
+        WHERE approvedOrder_ID = #{approvedOrderId}
+    </select>
+
+</mapper>

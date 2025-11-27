@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.finance.mappers.ExpenseMapper">
+
+    <resultMap id="ExpenseResultMap" type="com.ssg.wms.finance.domain.ExpenseVO">
+        <id property="id" column="expense_id"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="expenseDate" column="expense_date"/>
+        <result property="category" column="category"/>
+        <result property="amount" column="amount"/>
+        <result property="description" column="description"/>
+        <result property="regDate" column="reg_date"/>
+        <result property="modDate" column="mod_date"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="searchConditions">
+        <where>
+            AND status = 'ACTIVE'
+            <if test="dateFrom != null">
+                AND expense_date &gt;= #{dateFrom}
+            </if>
+            <if test="dateTo != null">
+                AND expense_date &lt;= #{dateTo}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                expense_id LIKE CONCAT('%', #{keyword}, '%')
+                OR warehouse_name LIKE CONCAT('%', #{keyword}, '%')
+                OR category LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="findAll" resultMap="ExpenseResultMap" parameterType="com.ssg.wms.finance.dto.ExpenseRequestDTO">
+        SELECT * FROM expense
+        <include refid="searchConditions"/>
+        ORDER BY expense_date DESC, expense_id DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int" parameterType="com.ssg.wms.finance.dto.ExpenseRequestDTO">
+        SELECT COUNT(*) FROM expense
+        <include refid="searchConditions"/>
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="expense_id">
+        INSERT INTO expense (warehouse_name, expense_date, category, amount, description)
+        VALUES (#{warehouseName}, #{expenseDate}, #{category}, #{amount}, #{description})
+    </insert>
+
+    <select id="findById" resultMap="ExpenseResultMap">
+        SELECT *
+        FROM expense
+        WHERE expense_id = #{id}
+          AND status = 'ACTIVE' </select>
+
+    <update id="update">
+        UPDATE expense
+        SET warehouse_name = #{warehouseName},
+            expense_date   = #{expenseDate},
+            category       = #{category},
+            amount         = #{amount},
+            description    = #{description},
+            mod_date       = NOW()
+        WHERE expense_id = #{id}
+          AND status = 'ACTIVE' </update>
+
+    <update id="delete">
+        UPDATE expense
+        SET status = 'DELETED'
+        WHERE expense_id = #{id}
+    </update>
+
+    <select id="findSummaryByCategory" resultType="com.ssg.wms.finance.dto.CategorySummaryDTO">
+        SELECT category, SUM(amount) AS totalAmount
+        FROM expense
+        WHERE YEAR(expense_date) = #{year}
+          AND status = 'ACTIVE'
+        GROUP BY category
+    </select>
+
+    <select id="findMonthlySummary" resultType="com.ssg.wms.finance.dto.DashboardSummaryDTO">
+        SELECT MONTH(expense_date) AS month, SUM(amount) AS totalExpenses
+        FROM expense
+        WHERE YEAR(expense_date) = #{year}
+          AND status = 'ACTIVE'
+        GROUP BY MONTH(expense_date)
+    </select>
+
+    <select id="findSummaryByCategoryForMonth" resultType="com.ssg.wms.finance.dto.CategorySummaryDTO">
+        SELECT category, SUM(amount) AS totalAmount
+        FROM expense
+        WHERE YEAR(expense_date) = #{year}
+          AND MONTH(expense_date) = #{month}
+          AND status = 'ACTIVE'
+        GROUP BY category
+    </select>
+
+    <update id="updateCode">
+        UPDATE expense
+        SET expense_code = #{expenseCode}
+        WHERE expense_id = #{id}
+    </update>
+
+    <select id="findTotalExpenseByMonth" resultType="long">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM expense
+        WHERE YEAR(expense_date) = #{year}
+          AND MONTH(expense_date) = #{month}
+          AND status = 'ACTIVE' </select>
+
+</mapper>

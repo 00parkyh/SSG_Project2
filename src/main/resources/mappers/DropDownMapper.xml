@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.product_stock.mappers.dropDownMapper">
+
+    <select id="categoryDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
+        select category_cd as id, category_name as name from category order by category_name
+    </select>
+
+    <select id="brandDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
+        select partner_id as id, partner_name as name from Partner order by partner_name
+    </select>
+
+<!--    <select id="warehouseDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">-->
+<!--        select warehouse_id as id, name as name from warehouse order by warehouse.name-->
+<!--    </select>-->
+
+    <select id="sectionDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
+        select section_id as id, section_name as name from section order by section_name
+    </select>
+
+    <select id="warehouseDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
+        SELECT DISTINCT w.warehouse_id AS id, w.name AS name FROM warehouse w JOIN product_stock ps ON w.warehouse_id = ps.warehouse_id WHERE ps.quantity > 0 ORDER BY w.name
+    </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+# -------------------------------------------------
+# 1. (필수) Gradle, IntelliJ, Build 폴더 무시
+# -------------------------------------------------
+.gradle/
+build/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+
+# -------------------------------------------------
+# 2. (선택) 사용자님이 보내주신 Java 템플릿
+# -------------------------------------------------
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+# .war 파일은 초기 세팅에서는 제외하는 것이 좋습니다.
+*.jar
+# *.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# OS specific
+.DS_Store
+Thumbs.db

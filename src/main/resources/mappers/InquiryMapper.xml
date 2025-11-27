@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.inquiry.mappers.InquiryMapper">
+
+    <select id="selectInquiries" resultType="com.ssg.wms.inquiry.dto.InquiryDTO">
+        SELECT *
+        FROM inquiry
+        WHERE status = 'AVAILABLE'
+        <if test="keyword != null and keyword != ''">
+            AND title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countInquiries" resultType="int">
+        SELECT COUNT(*)
+        FROM inquiry
+        WHERE status = 'AVAILABLE'
+        <if test="keyword != null and keyword != ''">
+            AND title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
+    <select id="selectInquiryById" resultType="com.ssg.wms.inquiry.dto.InquiryDTO">
+        SELECT *
+        FROM inquiry
+        WHERE inquiry_id = #{inquiryId}
+    </select>
+
+    <insert id="insertInquiry" useGeneratedKeys="true" keyProperty="inquiryId">
+        INSERT INTO inquiry (title, content, writer, password)
+        VALUES (#{title}, #{content}, #{writer}, #{password})
+    </insert>
+
+    <update id="updateInquiry">
+        UPDATE inquiry
+        SET title = #{title},
+            content = #{content},
+            updated_at = NOW()
+        WHERE inquiry_id = #{inquiryId}
+        AND password = #{password}
+    </update>
+
+    <update id="deleteInquiry">
+        UPDATE inquiry
+        SET status = 'DELETED'
+        WHERE inquiry_id = #{inquiryId}
+        AND password = #{password}
+    </update>
+
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.inbound.mappers.InboundAdminMapper">
+
+    <resultMap id="InboundWithItemsResultMap" type="com.ssg.wms.inbound.dto.InboundDTO">
+        <id property="inboundId" column="inbound_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="memberId" column="member_id"/>
+        <result property="memberName" column="member_name"/>
+        <result property="partnerName" column="partner_name"/>
+        <result property="inboundRequestedAt" column="inbound_requested_at"/>
+        <result property="inboundStatus" column="inbound_status"/>
+        <collection property="inboundItems" ofType="com.ssg.wms.inbound.dto.InboundItemDTO">
+            <id property="inboundItemId" column="inbound_item_id"/>
+            <result property="productId" column="product_id"/>
+            <result property="productName" column="product_name"/>
+            <result property="categoryName" column="category_name"/>
+            <result property="quantity" column="quantity"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectInboundListByPartner" parameterType="map" resultType="InboundListDTO">
+        SELECT
+        i.inbound_id,
+        p.partner_name,
+        i.inbound_requested_at,
+        m.member_name,
+        i.inbound_status
+        FROM inbound i
+        INNER JOIN member m ON i.member_id = m.member_id
+        INNER JOIN partner p ON m.partner_id = p.partner_id
+        WHERE 1=1
+        <!-- partnerId가 null이 아니고 비어있지 않으면 필터링 -->
+        <if test="partnerId != null and partnerId != ''">
+            AND m.partner_id = #{partnerId}
+        </if>
+        <!-- inboundStatus가 null이 아니고 비어있지 않으면 필터링 -->
+        <if test="inboundStatus != null and inboundStatus != ''">
+            AND i.inbound_status = #{inboundStatus}
+        </if>
+        ORDER BY i.inbound_id DESC
+    </select>
+
+    <select id="selectInboundWithItems" resultMap="InboundWithItemsResultMap" parameterType="int">
+        SELECT
+        i.inbound_id,
+        i.warehouse_id,
+        w.name AS warehouse_name,
+        i.member_id,
+        m.member_name,
+        i.staff_id,
+        st.staff_name,
+        pt.partner_name,
+        i.inbound_status,
+        ii.inbound_item_id,
+        ii.product_id,
+        p.product_name,
+        c.category_name,
+        ii.quantity,
+        i.inbound_requested_at,
+        i.inbound_at,
+        i.inbound_reject_reason
+        FROM inbound i
+        LEFT JOIN warehouse w ON i.warehouse_id = w.warehouse_id
+        JOIN member m ON i.member_id = m.member_id
+        JOIN partner pt ON m.partner_id = pt.partner_id
+        LEFT JOIN inbound_item ii ON i.inbound_id = ii.inbound_id
+        LEFT JOIN product p ON ii.product_id = p.product_id
+        LEFT JOIN category c ON p.category_cd = c.category_cd
+        LEFT JOIN staff st ON i.staff_id = st.staff_id
+        WHERE i.inbound_id = #{inboundId}
+    </select>
+
+    <select id="selectWarehouseName" resultType="InboundWarehouseDTO">
+        SELECT
+        warehouse_id as warehouseId,
+        name as warehouseName
+        FROM warehouse;
+    </select>
+
+    <update id="approveInboundStatus">
+        UPDATE inbound SET
+        inbound_status = 'approved',
+        warehouse_id = #{warehouseId},
+        inbound_updated_at = NOW(),
+        inbound_at = NOW()
+        WHERE inbound_id = #{inboundId}
+    </update>
+
+    <update id="updateInboundStatusRejected" >
+        UPDATE inbound
+        SET inbound_status = 'rejected',
+        inbound_reject_reason = #{reason},
+        inbound_updated_at = NOW()
+        WHERE inbound_id = #{inboundId}
+    </update>
+
+
+
+
+
+</mapper>
+
+
+

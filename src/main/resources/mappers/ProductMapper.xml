@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.product_ehs.mappers.ProductMapper">
+
+    <select id="selectProductsByPartnerAndCategory" resultType="com.ssg.wms.product_ehs.dto.ProductDTO">
+        SELECT
+        product_id AS productId,
+        product_name AS productName
+        FROM product
+        WHERE partner_id = #{partnerId}
+        AND category_cd = #{categoryCd}
+        ORDER BY product_name
+    </select>
+
+    <select id="selectCategory" resultType="com.ssg.wms.product_ehs.dto.CategoryDTO">
+        SELECT category_cd, category_name
+        FROM category
+        ORDER BY category_cd
+    </select>
+
+</mapper>

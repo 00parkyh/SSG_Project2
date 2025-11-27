@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.product_stock.mappers.PhysicalInventoryMapper">
+
+<!--재고 실사-->
+    <select id="selectPhysicalInventoryList" resultType="com.ssg.wms.product_stock.dto.PhysicalInventoryDTO">
+        SELECT
+            PI.piID AS piId,
+            DATE_FORMAT(PI.pi_date, '%Y-%m-%d') AS piDate,
+            P.product_id AS productId,
+            PI.pi_state AS piState,
+            PI.pid_quantity AS calculatedQuantity,
+            PI.real_quantity AS realQuantity,
+            PI.different_quantity AS differentQuantity,
+            W.name AS warehouseName,
+            S.section_name AS sectionName,
+            IFNULL(PI.update_state, '*') AS adjustmentStatus
+        FROM
+            Physical_Inventory PI
+                JOIN
+            Product_Stock PS ON PI.PS_ID = PS.ps_id
+                JOIN
+            Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+                JOIN
+            WAREHOUSE W ON S.warehouse_id = W.warehouse_id
+                JOIN
+            inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+                JOIN
+            Product P ON II.product_id = P.product_id
+        ORDER BY
+            PI.pi_date DESC, PI.piID DESC
+        LIMIT #{size} OFFSET #{skip}
+    </select>
+
+    <select id="selectPhysicalInventoryTotalCount" resultType="int">
+        SELECT COUNT(PI.piID)
+        FROM Physical_Inventory PI
+                 JOIN Product_Stock PS ON PI.PS_ID = PS.ps_id
+                 JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+                 JOIN Product P ON II.product_id = P.product_id
+                 JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+                 JOIN WAREHOUSE W ON S.warehouse_id = W.warehouse_id
+    </select>
+
+    <insert id="insertPhysicalInventory" useGeneratedKeys="true" keyProperty="piId">
+        INSERT INTO Physical_Inventory
+            (PS_ID, pi_date, pi_state, pid_quantity)
+        VALUES
+            (
+                #{psId},
+                #{piDate},
+                #{piState},
+                #{calculatedQuantity}
+            )
+    </insert>
+
+    <update id="updatePhysicalInventory" parameterType="com.ssg.wms.product_stock.dto.PhysicalInventoryUpdateDTO">
+        UPDATE Physical_Inventory
+        SET
+            real_quantity = #{realQuantity},
+            different_quantity = #{realQuantity} - pid_quantity,
+            update_state = #{updateState}
+        WHERE
+            piID = #{piId}
+    </update>
+
+    <select id="getCalculatedQuantityByPiId" resultType="Integer">
+        SELECT pid_quantity FROM Physical_Inventory WHERE piID = #{piId}
+    </select>
+
+    <select id="getPsIdByPiId" resultType="Long">
+        SELECT PS_ID FROM Physical_Inventory WHERE piID = #{piId}
+    </select>
+
+    <select id="selectStocksForPhysicalInventory" resultType="com.ssg.wms.product_stock.dto.StockSnapshotDTO">
+        SELECT
+            PS.ps_id AS psId,
+            II.product_id AS productId,
+            PS.quantity AS quantity,
+            PS.warehouse_id AS warehouseId,
+            PS.section_id AS sectionId
+        FROM
+            Product_Stock PS
+                JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        WHERE
+            PS.warehouse_id = #{warehouseId}
+          AND PS.section_id = #{sectionId}
+          AND PS.quantity > 0
+    </select>
+
+    <update id="updateStockQuantity">
+        UPDATE Product_Stock
+        SET
+            quantity = quantity + #{quantityChange},
+            last_updatedate = CURRENT_TIMESTAMP
+        WHERE
+            ps_id = #{psId}
+    </update>
+
+    <insert id="insertStockLog">
+        INSERT INTO product_stock_log
+        (PS_ID, event_time, move_quantity, event_type, product_status, destination)
+        VALUES
+            (#{psId}, CURRENT_TIMESTAMP, #{moveQuantity}, #{eventType}, #{productStatus}, #{destination})
+    </insert>
+
+</mapper>

@@ -1,0 +1,65 @@
+[33m5cf79f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev/LJH[m[33m)[m 17시48분 창고등록 기능 구현만 하면 됨
+[33mf01ba32[m 중복 구현 기능 저장
+[33m4309856[m 2025 11 11
+[33m450ee45[m 코드 보존
+[33m9c4746c[m Merge branch 'origin/develop' into dev/LJH after resolving conflicts in root-context.xml
+[33m42412bb[m ㅎ ㅏ.
+[33m68d2ef9[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #13 /dev/EHS 입고
+[33m2d49216[m Merge branch 'develop' into dev/EHS
+[33m7e23b9d[m gm
+[33m78131b8[m Merge pull request #12 from SSG-2nd-2team/dev/KDY
+[33mcc1d5f0[m[33m ([m[1;31morigin/dev/KDY[m[33m)[m Merge branch 'develop' into dev/KDY
+[33m7d09b1d[m 기능 추가: Announcement
+[33md0e27f0[m feat: inbound select One DONE
+[33m22279b3[m 프론트 수정: members 외 다수
+[33m7572129[m Merge remote-tracking branch 'origin' into dev/EHS
+[33meac8d77[m feat:list and modal working on it
+[33m933d79a[m[33m ([m[1;32mdevelop[m[33m)[m Merge pull request #11 from SSG-2nd-2team/dev/KHG
+[33m1e38e10[m xml, views 전반적으로 수정, dashboard, 재무 연동
+[33m73204eb[m Merge branch 'develop' into dev/KDY
+[33me32c5b1[m 프론트 추가: members
+[33m47002e4[m Merge remote-tracking branch 'origin' into dev/EHS
+[33m3166e90[m feat:inbound list for admin and member done
+[33md2955e7[m member-header, footer
+[33m1691ef1[m 프론트 수정: member-header, footer
+[33m8e1b6fb[m Merge remote-tracking branch 'origin' into dev/EHS
+[33m525749c[m feat:화면에서 입고요청: 해결
+[33m218945d[m Merge pull request #8 from SSG-2nd-2team/dev/KHG
+[33m7d3fa13[m 프론트 추가: mypage
+[33m9f993af[m develop 동기
+[33m8bae14e[m 권한별 jsp 추가: header, footer, connect
+[33m1e916d2[m config 추가: WebConfig, RoleCheckInterceptor
+[33me862ba3[m feat:입고 요청 아직 해결 못함
+[33mf54badf[m 프론트 추가: login 페이지, register 페이지
+[33mb65199d[m feat:inbound request form
+[33m2f82940[m feat:inboundRequest form working ...
+[33mc635564[m 권한별 jsp 추가: header, footer, connect
+[33mfca7ecd[m feat: dev pull
+[33m758eebd[m Merge branch 'develop' into dev/EHS
+[33m61b45ea[m feat: 입고 요청 거의 완료
+[33maec18a2[m Merge pull request #6 from SSG-2nd-2team/dev/KHG
+[33m6a04483[m DashboardController 수정, Expense, Sales TEST 추가, root-context.xml 수정
+[33m87d3b10[m Expense, Sales, Dashboard 프로토타입
+[33mda38e34[m Expense, Sales, Dashboard 구현
+[33m5ff0d44[m feat:product, category showbox
+[33m8ed11cf[m feat:insert mapper
+[33m08be63d[m feat:made DTO, VO for needs
+[33m610009b[m feat:inbound basic class setting
+[33m0c1b150[m feat:package setting
+[33m2419d38[m fix: maybatis-config.xml 삭제 feat: root-context.xml 에 기능 추가
+[33m8fc14fd[m fix: maybatis-config.xml 삭제 feat: root-context.xml 에 기능 추가
+[33m7bac0f6[m README.md
+[33m7bca418[m SSG team prorject 2 dev/KDY
+[33mb90f8f5[m 251107 initial commit KDY
+[33m7658daa[m feat: 초기 프로젝트 구조 및 .gitignore 세팅
+[33m9313b91[m[33m ([m[1;31morigin/main[m[33m)[m feat: 초기 프로젝트 구조 및 .gitignore 세팅
+[33mfdaea2e[m GIT DOCS
+[33m30a3146[m GIT DOCS
+[33m4b993f6[m 초기 세팅.md
+[33mc2de9a0[m Git Master 가이드
+[33mc28aff1[m GIT 작업 가이드.md
+[33m8e7bba7[m FAQ.md
+[33m4a0d63f[m 충돌 해결 가이드
+[33mb12e07d[m GIT 충돌 해결 가이드
+[33m634d7b1[m README.md
+[33ma9df4d4[m[33m ([m[1;31morigin/dev/PYH[m[33m, [m[1;31morigin/dev/LJH[m[33m)[m Initial commit

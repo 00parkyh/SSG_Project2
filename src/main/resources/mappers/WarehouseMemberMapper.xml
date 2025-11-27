@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.warehouse.mappers.WarehouseMemberMapper">
+
+    <resultMap id="warehouseListResultMap" type="com.ssg.wms.warehouse.dto.WarehouseListDTO">
+        <id property="warehouseId" column="warehouse_id"/>
+        <result property="name" column="name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="address" column="address"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="warehouseStatus" column="warehouse_status"/>
+        <result property="latestUpdateDate" column="latest_update_date"/>
+        <result property="registrationDate" column="registration_date"/>
+    </resultMap>
+
+    <resultMap id="locationResultMap" type="com.ssg.wms.warehouse.dto.LocationDTO">
+        <id property="locationId" column="location_id"/>
+        <result property="locationCode" column="location_code"/>
+        <result property="floorNum" column="floor_num"/>
+        <result property="locationTypeCode" column="location_type_code"/>
+        <result property="maxVolume" column="max_volume"/>
+    </resultMap>
+
+    <resultMap id="sectionResultMap" type="com.ssg.wms.warehouse.dto.SectionDTO">
+        <id property="sectionId" column="section_id"/>
+        <result property="sectionName" column="section_name"/>
+        <result property="sectionType" column="section_type"/>
+        <result property="sectionPurpose" column="section_purpose"/>
+        <result property="allocatedArea" column="allocated_area"/>
+    </resultMap>
+
+    <resultMap id="warehouseDetailResultMap" type="com.ssg.wms.warehouse.dto.WarehouseDetailDTO">
+        <id property="warehouseId" column="warehouse_id"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="name" column="name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="warehouseCapacity" column="warehouse_capacity"/>
+        <result property="warehouseStatus" column="warehouse_status"/>
+        <result property="registrationDate" column="registration_date"/>
+        <result property="latestUpdateDate" column="latest_update_date"/>
+        <result property="address" column="address"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <collection property="sections" ofType="com.ssg.wms.warehouse.dto.SectionDTO" resultMap="sectionResultMap"/>
+        <collection property="locations" ofType="com.ssg.wms.warehouse.dto.LocationDTO" resultMap="locationResultMap"/>
+    </resultMap>
+
+    <select id="selectWarehouses" parameterType="com.ssg.wms.warehouse.dto.WarehouseSearchDTO"
+            resultMap="warehouseListResultMap">
+        SELECT
+        warehouse_id,
+        name,
+        warehouse_type,
+        address,
+        latitude,
+        longitude,
+        warehouse_status, latest_update_date,
+        registration_date
+        FROM WAREHOUSE
+        WHERE 1=1
+        <if test="warehouseName != null and warehouseName != ''">
+            AND name LIKE CONCAT('%', #{warehouseName}, '%')
+        </if>
+        <if test="warehouseAddress != null and warehouseAddress != ''">
+            AND address LIKE CONCAT('%', #{warehouseAddress}, '%')
+        </if>
+        <if test="warehouseType != null and warehouseType != ''">
+            AND warehouse_type = #{warehouseType}
+        </if>
+        <if test="warehouseStatus != null">
+            AND warehouse_status = #{warehouseStatus}
+        </if>
+        ORDER BY registration_date DESC
+    </select>
+
+    <select id="selectWarehouseDetailById" parameterType="long" resultMap="warehouseDetailResultMap">
+        SELECT
+            W.warehouse_id, W.admin_id, W.name, W.address, W.latitude, W.longitude,
+            W.warehouse_type, W.warehouse_capacity, W.warehouse_status,
+            W.registration_date, W.latest_update_date,
+            S.section_id, S.section_name, S.section_type, S.section_purpose, S.allocated_area,
+            L.location_id, L.location_code, L.floor_num, L.location_type_code, L.max_volume
+        FROM WAREHOUSE W
+                 LEFT JOIN SECTION S ON W.warehouse_id = S.warehouse_id
+                 LEFT JOIN LOCATION L ON W.warehouse_id = L.warehouse_id
+        WHERE W.warehouse_id = #{id}
+    </select>
+</mapper>

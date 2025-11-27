@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.product_stock.mappers.ProductStockMapper">
+
+<!--재고 조회-->
+
+<!--검색 메뉴 선택 하지 않았을때 null 값으로 받음 -->
+    <sql id="wmsSearchCondition">
+        <where>
+            <if test="categoryCd != null">
+                AND P.category_cd = #{categoryCd}
+            </if>
+            <if test="partnerId != null">
+                AND P.partner_id = #{partnerId}
+            </if>
+            <if test="warehouseId != null">
+                AND PS.warehouse_id = #{warehouseId}
+            </if>
+            <if test="sectionId != null">
+                AND PS.section_id = #{sectionId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="findStockList" resultType="com.ssg.wms.product_stock.dto.StockInfoDTO">
+        SELECT
+            PS.ps_id AS psId,
+            P.product_id AS productId,
+            P.product_name AS productName,
+            PR.partner_name AS brandName,
+            PS.quantity AS quantity,
+            W.name AS warehouseName,
+            S.section_name AS sectionName
+        FROM
+        Product_Stock PS
+        JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        JOIN Product P ON II.product_id = P.product_id
+        JOIN Partner PR ON P.partner_id = PR.partner_id
+        JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+        JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+
+        <include refid="wmsSearchCondition"/>
+
+        ORDER BY
+        PS.ps_id DESC
+        LIMIT #{size} OFFSET #{skip}
+    </select>
+
+    <select id="countStockList" resultType="int">
+        SELECT COUNT(PS.ps_id)
+        FROM
+        Product_Stock PS
+        JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        JOIN Product P ON II.product_id = P.product_id
+        JOIN Partner PR ON P.partner_id = PR.partner_id
+        JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+        JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+
+        <include refid="wmsSearchCondition"/>
+    </select>
+</mapper>

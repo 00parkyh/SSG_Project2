@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.warehouse.mappers.WarehouseManagerMapper">
+
+    <resultMap id="warehouseListResultMap" type="com.ssg.wms.warehouse.dto.WarehouseListDTO">
+        <id property="warehouseId" column="warehouse_id"/>
+        <result property="name" column="name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="address" column="address"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="warehouseStatus" column="warehouse_status"/>
+        <result property="latestUpdateDate" column="latest_update_date"/>
+    </resultMap>
+
+    <resultMap id="warehouseDetailResultMap" type="com.ssg.wms.warehouse.dto.WarehouseDetailDTO">
+        <id property="warehouseId" column="warehouse_id"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="name" column="name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="warehouseCapacity" column="warehouse_capacity"/>
+        <result property="warehouseStatus" column="warehouse_status"/>
+        <result property="address" column="address"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="registrationDate" column="registration_date"/>
+        <result property="latestUpdateDate" column="latest_update_date"/>
+    </resultMap>
+
+    <insert id="insertWarehouse" parameterType="com.ssg.wms.warehouse.dto.WarehouseSaveDTO"
+            useGeneratedKeys="true" keyProperty="warehouseId">
+        INSERT INTO WAREHOUSE (
+            admin_id,
+            name,
+            warehouse_type,
+            warehouse_capacity,
+            warehouse_status,
+            address,
+            latitude,
+            longitude,
+            registration_date,
+            latest_update_date
+        ) VALUES (
+                     #{adminId},
+                     #{name},
+                     #{warehouseType},
+                     #{warehouseCapacity},
+                     #{warehouseStatus},
+                     #{address},
+                     #{latitude},
+                     #{longitude},
+                     CURDATE(),
+                     NOW()
+                 )
+    </insert>
+
+    <insert id="insertSection" parameterType="com.ssg.wms.warehouse.dto.SectionDTO">
+        INSERT INTO section (
+            warehouse_id,
+            section_name,
+            section_type,
+            section_purpose,
+            allocated_area
+        ) VALUES (
+                     #{warehouseId},
+                     #{sectionName},
+                     #{sectionType},
+                     #{sectionPurpose},
+                     #{allocatedArea}
+                 )
+    </insert>
+
+    <update id="updateWarehouse" parameterType="com.ssg.wms.warehouse.dto.WarehouseUpdateDTO">
+        UPDATE WAREHOUSE
+        SET
+            name = #{name},
+            admin_id = #{adminId},
+            warehouse_type = #{warehouseType},
+            warehouse_capacity = #{warehouseCapacity},
+            warehouse_status = #{warehouseStatus},
+            address = #{address},
+            latest_update_date = NOW()
+        WHERE warehouse_id = #{warehouseId}
+    </update>
+
+    <delete id="deleteWarehouse" parameterType="long">
+        DELETE FROM WAREHOUSE
+        WHERE warehouse_id = #{id}
+    </delete>
+
+    <select id="countWarehouseName" parameterType="string" resultType="int">
+        SELECT COUNT(warehouse_id)
+        FROM WAREHOUSE
+        WHERE name = #{name}
+    </select>
+
+    <update id="updateWarehouseStatus" parameterType="map">
+        UPDATE WAREHOUSE
+        SET
+            warehouse_status = #{newStatus},
+            latest_update_date = NOW()
+        WHERE warehouse_id = #{id}
+    </update>
+
+    <select id="selectWarehouses" parameterType="com.ssg.wms.warehouse.dto.WarehouseSearchDTO" resultMap="warehouseListResultMap">
+        SELECT
+        warehouse_id,
+        name,
+        warehouse_type,
+        address,
+        latitude,
+        longitude,
+        warehouse_status,
+        latest_update_date
+        FROM
+        WAREHOUSE
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="warehouseType != null and warehouseType != ''">
+            AND warehouse_type = #{warehouseType}
+        </if>
+        <if test="warehouseStatus != null">
+            AND warehouse_status = #{warehouseStatus}
+        </if>
+        ORDER BY latest_update_date DESC
+    </select>
+
+    <select id="selectWarehouseDetailById" parameterType="long" resultMap="warehouseDetailResultMap">
+        SELECT
+            w.warehouse_id,
+            w.admin_id,
+            w.name,
+            w.warehouse_type,
+            w.warehouse_capacity,
+            w.warehouse_status,
+            w.address,
+            w.latitude,
+            w.longitude,
+            w.registration_date,
+            w.latest_update_date
+        FROM
+            WAREHOUSE w
+        WHERE
+            w.warehouse_id = #{id}
+    </select>
+
+</mapper>

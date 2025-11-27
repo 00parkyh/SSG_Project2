@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.product_stock.mappers.ProductStockMapper">
+<!--재고 상세-->
+    <select id="getStockMovementLogs" resultType="com.ssg.wms.product_stock.dto.StockLogDTO">
+        SELECT
+            T1.event_time AS eventTime,
+            T1.event_type AS eventType,
+            T1.move_quantity AS moveQuantity,
+            T1.destination AS destination,
+            T1.product_status AS productStatus,
+            T3.section_name AS sectionName
+        FROM product_stock_log T1
+                 JOIN Product_Stock T2 ON T1.PS_ID = T2.ps_id
+                 JOIN inbound_item T4 ON T2.inbound_item_id = T4.inbound_item_id
+                 JOIN Product P ON T4.product_id = P.product_id
+                 LEFT JOIN Section T3 ON T2.warehouse_id = T3.warehouse_id AND T2.section_id = T3.section_id
+        WHERE P.product_id = #{productId}
+        ORDER BY T1.event_time DESC
+    </select>
+
+    <select id="getProductSummaryById" resultType="com.ssg.wms.product_stock.dto.StockSummaryDTO">
+        SELECT
+            P.product_id AS productId,
+            P.product_name AS productName,
+            W.name AS warehouseName,
+            S.section_name AS sectionName,
+            (
+                SELECT SUM(sub_PS.quantity)
+                FROM Product_Stock sub_PS
+                         JOIN inbound_item sub_II ON sub_PS.inbound_item_id = sub_II.inbound_item_id
+                WHERE sub_II.product_id = P.product_id
+            ) AS currentQuantity
+        FROM Product P
+                 LEFT JOIN inbound_item II ON P.product_id = II.product_id
+                 LEFT JOIN Product_Stock PS ON II.inbound_item_id = PS.inbound_item_id
+                 LEFT JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+                 LEFT JOIN Section S ON PS.warehouse_id = S.warehouse_id AND PS.section_id = S.section_id
+        WHERE P.product_id = #{productId}
+        ORDER BY PS.last_updatedate DESC
+        LIMIT 1
+    </select>
+
+</mapper>

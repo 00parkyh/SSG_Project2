@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.member.mappers.MemberMapper">
+
+    <resultMap id="MemberResultMap" type="com.ssg.wms.member.domain.Member">
+        <id property="memberId" column="member_id"/>
+        <result property="memberLoginId" column="member_login_id"/>
+        <result property="memberName" column="member_name"/>
+        <result property="memberPw" column="member_pw"/>
+        <result property="memberPhone" column="member_phone"/>
+        <result property="memberEmail" column="member_email"/>
+        <result property="role" column="role"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 고객 정보 조회 -->
+    <select id="getMemberDetails" resultType="com.ssg.wms.member.dto.MemberDTO">
+        SELECT member_id, member_login_id, member_name, member_phone, member_email,
+               created_at, updated_at, status, role, business_number, partner_id
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 로그인 id로 직원 id 조회 -->
+    <select id="findMemberIdByMemberLoginId" resultType="long">
+        SELECT member_id
+        FROM member
+        WHERE member_login_id = #{memberLoginId}
+    </select>
+
+    <!-- 고객 회원가입 -->
+    <insert id="insertMember" >
+        INSERT INTO member (member_login_id, member_pw, member_name, member_phone, member_email, business_number, partner_id)
+        VALUES (#{memberLoginId}, #{memberPw}, #{memberName}, #{memberPhone}, #{memberEmail}, #{businessNumber}, #{partnerId});
+    </insert>
+
+    <!--  정보 수정  -->
+    <update id="updateMember" parameterType="com.ssg.wms.member.dto.MemberUpdateDTO">
+        UPDATE member
+        SET member_email = #{memberEmail},
+            member_phone = #{memberPhone}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <!--  로그인ID + PW로 고객 정보 얻기  -->
+    <select id="findByLoginIdAndPw" parameterType="String" resultType="com.ssg.wms.member.dto.MemberDTO">
+        SELECT member_id, member_login_id, member_name, member_phone, member_email,
+               created_at, updated_at, status, role, business_number, partner_id
+        FROM member WHERE member_login_id = #{loginId}
+        AND member_pw = #{password}
+    </select>
+
+    <!--  고객의 partnerId로 partnerName 얻기  -->
+    <select id="getPartnerName" resultType="String">
+        SELECT p.partner_name
+        FROM partner p
+        JOIN member m ON p.partner_id = m.partner_id
+        WHERE m.partner_id = #{partnerId}
+        LIMIT 1
+    </select>
+
+    <!-- 고객의 사업자등록번호로 partnerId 얻기 -->
+    <select id="getPartnerIdByBusinessNumber" resultType="int">
+        SELECT partner_id
+        FROM partner
+        WHERE business_number = #{businessNumber}
+    </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.outbound.mappers.DispatchMapper">
+
+
+
+
+    <select id="getDispatchNameList">
+        select dispatch_id,carID, Cartype, driverName, assignedDate, loadedBOX
+        from dispatch
+        where driverName = #{driverName}
+
+        <if test="criteria != null">
+            ORDER BY assignedDate DESC
+            LIMIT #{criteria.amount} OFFSET #{criteria.skip}
+        </if>
+    </select>
+
+
+
+
+
+    <select id="getDispatchDetailById">
+        select dispatch_ID, approvedOrder_ID, carID, Cartype, driverName, assignedDate, dispatchStatus, loadedBOX, maximumBOX
+        from dispatch
+        where dispatch_ID = #{dispatchId}
+    </select>
+
+
+
+
+
+<!--    배차 정보 등록-->
+    <insert id="insertDispatchInformation"
+            parameterType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO"
+            useGeneratedKeys="true"
+            keyProperty="dispatchId">
+        INSERT INTO dispatch (
+        approvedOrder_ID,
+        carID,
+        Cartype,
+        driverName,
+        assignedDate,
+        dispatchStatus,
+        loadedBOX,
+        maximumBOX
+        )
+        VALUES (
+        #{approvedOrderID},
+        #{carId},
+        #{carType},
+        #{driverName},
+        NOW(),
+        #{dispatchStatus},
+        #{loadedBox},
+        100
+        )
+    </insert>
+
+
+
+
+    
+    <update id="updateDispatchInformation" parameterType="com.ssg.wms.outbound.domain.dto.DispatchDTO">
+        UPDATE dispatch
+        SET
+        carID = #{carId},
+        Cartype = #{carType},
+        driverName = #{driverName},
+        dispatchStatus = #{dispatchStatus}
+        warehouse_id = #{warehouseId}
+        WHERE
+        approvedOrder_ID = #{approvedOrderID}
+    </update>
+
+
+
+
+
+<!--    // 운송장 번호 등록-->
+    <!--    등록완료 PENDING, ASSIGNED등등 으로 바꾸가-->
+    <insert id="insertMinimalWaybill">
+        INSERT INTO waybill (
+        dispatch_id,
+        waybill_number,
+        waybill_date,
+        waybill_Status
+        ) VALUES (
+        #{dispatchId},
+        #{waybillNumber},
+        NOW(),
+        '등록완료'  )
+    </insert>
+
+
+    <select id="getDispatchIdByApprovedOrderId" resultType="java.lang.Long">
+        SELECT dispatch_ID
+        FROM dispatch
+        WHERE approvedOrder_ID = #{approvedOrderId}
+    </select>
+
+
+    <update id="updateLoadedBox">
+        UPDATE dispatch
+        SET
+        loadedBOX = #{loadedBox}
+        WHERE
+        dispatch_ID = #{dispatchId}
+        AND approvedOrder_ID = #{approvedOrderId}
+    </update>
+
+
+
+
+    <select id="getAllDrivers" resultType="com.ssg.wms.outbound.domain.dto.DispatchDTO">
+        SELECT
+        driver_name  AS driverName,
+        car_id       AS carId,
+        car_number   AS carNumber,  -- ✅ 추가
+        car_type     AS carType
+        FROM driver
+    </select>
+
+</mapper>

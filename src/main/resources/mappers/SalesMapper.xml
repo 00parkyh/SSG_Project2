@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.finance.mappers.SalesMapper">
+
+    <resultMap id="SalesResultMap" type="com.ssg.wms.finance.domain.SalesVO">
+        <id property="id" column="sales_id"/>
+        <result property="salesCode" column="sales_code"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="salesDate" column="sales_date"/>
+        <result property="category" column="category"/>
+        <result property="clientName" column="client_name"/>
+        <result property="amount" column="amount"/>
+        <result property="description" column="description"/>
+        <result property="regDate" column="reg_date"/>
+        <result property="modDate" column="mod_date"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="searchConditions">
+        <where>
+            AND status = 'ACTIVE'
+            <if test="dateFrom != null">
+                AND sales_date &gt;= #{dateFrom}
+            </if>
+            <if test="dateTo != null">
+                AND sales_date &lt;= #{dateTo}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                sales_id LIKE CONCAT('%', #{keyword}, '%')
+                OR sales_code LIKE CONCAT('%', #{keyword}, '%') OR warehouse_name LIKE CONCAT('%', #{keyword}, '%')
+                OR client_name LIKE CONCAT('%', #{keyword}, '%')
+                OR category LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="findAll" resultMap="SalesResultMap" parameterType="com.ssg.wms.finance.dto.SalesRequestDTO">
+        SELECT * FROM sales
+        <include refid="searchConditions"/>
+        ORDER BY sales_date DESC, sales_id DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int" parameterType="com.ssg.wms.finance.dto.SalesRequestDTO">
+        SELECT COUNT(*) FROM sales
+        <include refid="searchConditions"/>
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="sales_id">
+        INSERT INTO sales (warehouse_name, sales_date, category, client_name, amount, description)
+        VALUES (#{warehouseName}, #{salesDate}, #{category}, #{clientName}, #{amount}, #{description})
+    </insert>
+
+    <select id="findById" resultMap="SalesResultMap">
+        SELECT *
+        FROM sales
+        WHERE sales_id = #{id}
+          AND status = 'ACTIVE' </select>
+
+    <update id="update">
+        UPDATE sales
+        SET warehouse_name = #{warehouseName},
+            sales_date     = #{salesDate},
+            category       = #{category},
+            client_name    = #{clientName},
+            amount         = #{amount},
+            description    = #{description},
+            mod_date       = NOW()
+        WHERE sales_id = #{id}
+          AND status = 'ACTIVE' </update>
+
+    <update id="delete">
+        UPDATE sales
+        SET status = 'DELETED'
+        WHERE sales_id = #{id}
+    </update>
+
+    <select id="findMonthlySummary" resultType="com.ssg.wms.finance.dto.DashboardSummaryDTO">
+        SELECT MONTH(sales_date) AS month, SUM(amount) AS totalSales
+        FROM sales
+        WHERE YEAR(sales_date) = #{year}
+          AND status = 'ACTIVE'
+        GROUP BY MONTH(sales_date)
+    </select>
+
+    <update id="updateCode">
+        UPDATE sales
+        SET sales_code = #{salesCode}
+        WHERE sales_id = #{id}
+    </update>
+
+    <select id="selectPartnerList" resultType="com.ssg.wms.finance.dto.SalesPartnerDTO">
+        SELECT partner_id   as partnerId,
+               partner_name as partnerName
+        FROM Partner
+        ORDER BY partner_name ASC
+    </select>
+
+    <select id="findTotalSalesByMonth" resultType="long">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM sales
+        WHERE YEAR(sales_date) = #{year}
+          AND MONTH(sales_date) = #{month}
+          AND status = 'ACTIVE'
+    </select>
+
+</mapper>

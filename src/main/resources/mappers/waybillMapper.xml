@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.outbound.mappers.WaybillMapper">
+
+    <resultMap id="WaybillDetailMap" type="com.ssg.wms.outbound.domain.dto.WaybillDTO">
+        <id property="waybillId" column="waybill_id"/>
+        <result property="waybillNumber" column="waybill_number"/>
+        <result property="waybillDate" column="waybill_date"/>
+        <result property="waybillStatus" column="waybill_status"/>
+        <result property="departureAddress" column="departure_address"/>
+        <result property="arrivalAddress" column="arrival_address"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="driverName" column="driver_name"/>
+        <result property="loadedBox" column="loaded_box"/>
+    </resultMap>
+
+    <!-- 단건 조회 -->
+    <select id="getWaybillByNumber" resultMap="WaybillDetailMap" parameterType="string">
+        SELECT
+        w.waybill_id,
+        w.waybill_number,
+        w.waybill_date,
+        w.waybill_status,
+        w.departure_address,
+        w.arrival_address,
+        w.sender_name,
+        w.receiver_name,
+        d.driver_name,
+        d.loaded_box
+        FROM waybill w
+        JOIN dispatch d ON w.dispatch_id = d.dispatch_id
+        WHERE w.waybill_number = #{waybillNumber}
+    </select>
+
+    <!-- 목록 조회 -->
+    <select id="getWaybills" resultMap="WaybillDetailMap" parameterType="map">
+        SELECT
+        waybill_id,
+        waybill_number,
+        waybill_date,
+        waybill_status,
+        sender_name,
+        receiver_name
+        FROM waybill
+        <where>
+            <if test="search != null and search != ''">
+                AND (
+                waybill_number LIKE CONCAT('%', #{search}, '%')
+                OR sender_name LIKE CONCAT('%', #{search}, '%')
+                OR receiver_name LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY waybill_date DESC
+        <if test="criteria != null">
+            LIMIT #{criteria.amount} OFFSET #{criteria.skip}
+        </if>
+    </select>
+
+    <!-- ✅ 운송장 생성 -->
+    <insert id="insertWaybill" parameterType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
+        INSERT INTO waybill (
+        dispatch_ID,
+        waybill_number,
+        waybill_date,
+        waybill_Status
+        ) VALUES (
+        #{dispatchId},
+        #{waybillNumber},
+        NOW(),
+        '출고대기'
+        )
+    </insert>
+
+    <!-- 운송장 수정 -->
+    <update id="updateWaybill" parameterType="com.ssg.wms.outbound.domain.dto.WaybillDTO">
+        UPDATE waybill
+        SET
+        departure_address = #{departureAddress},
+        arrival_address = #{arrivalAddress},
+        sender_name = #{senderName},
+        receiver_name = #{receiverName}
+        WHERE waybill_id = #{waybillId}
+    </update>
+
+</mapper>

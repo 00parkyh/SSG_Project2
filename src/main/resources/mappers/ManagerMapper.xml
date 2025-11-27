@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssg.wms.manager.mappers.ManagerMapper">
+
+    <!-- 직원 정보 조회 -->
+    <select id="getManagerDetails" resultType="StaffDTO">
+        SELECT staff_login_id, staff_name, staff_phone, staff_email, role, status, created_at, updated_at
+        FROM staff
+        WHERE staff_id = #{staffId}
+        AND role = 'MANAGER'
+    </select>
+
+    <!-- 로그인 id로 직원 id 조회 -->
+    <select id="findManagerIdByManagerLoginId" resultType="long">
+        SELECT staff_id
+        FROM staff
+        WHERE staff_login_id = #{staffLoginId}
+        AND role = 'MANAGER'
+    </select>
+
+    <update id="updateManager">
+        UPDATE staff
+        SET status = #{status}
+        WHERE staff_id = #{staffId}
+        AND role = 'MANAGER'
+    </update>
+
+    <!--  로그인ID + PW로 직원 정보 얻기  -->
+    <select id="findByLoginIdAndPw" parameterType="String" resultType="com.ssg.wms.manager.dto.StaffDTO">
+        SELECT * FROM staff WHERE staff_login_id = #{loginId}
+        AND staff_pw = #{password}
+    </select>
+
+</mapper>

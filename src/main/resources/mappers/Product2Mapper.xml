@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssg.wms.product_stock.mappers.ProductListMapper">
+    <sql id="wmsSearchCondition">
+        <where>
+            <if test="categoryCd != null">
+                AND P.category_cd = #{categoryCd}
+            </if>
+            <if test="partnerId != null">
+                AND P.partner_id = #{partnerId}
+            </if>
+            <if test="warehouseId != null">
+                AND PS.warehouse_id = #{warehouseId}
+            </if>
+            <if test="sectionId != null">
+                AND PS.section_id = #{sectionId}
+            </if>
+            <if test="productId != null">
+                AND P.product_id = #{productId}
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="findProductList" resultType="com.ssg.wms.product_stock.dto.ProductListDTO">
+        SELECT
+        P.product_id AS productId,                      -- DTO 필드: productId
+        P.product_name AS productName,                  -- DTO 필드: productName
+        PR.partner_name AS brandName,                 -- DTO 필드: partnerName (브랜드)
+
+        -- 제품이 존재하는 모든 창고 이름을 쉼표로 연결하여 표시합니다.
+        GROUP_CONCAT(DISTINCT W.name SEPARATOR ', ') AS warehouseName,
+        -- 제품이 존재하는 모든 섹션 이름을 쉼표로 연결하여 표시합니다.
+        GROUP_CONCAT(DISTINCT S.section_name SEPARATOR ', ') AS sectionName,
+
+        SUM(PS.quantity) AS quantity,                        -- 수량 총합 (집계 함수)
+
+        -- 제품의 모든 재고 상태를 쉼표로 연결하여 표시합니다.
+        GROUP_CONCAT(DISTINCT PS.product_status SEPARATOR ', ') AS productState,
+
+        CASE
+        WHEN SUM(PS.quantity) > 0 THEN '가능'
+        ELSE '불가능'
+        END AS availableOutbound,
+
+        -- 가장 최근에 입고된 날짜를 표시합니다.
+        MAX(I.inbound_at) AS inboundDate
+        FROM
+        Product_Stock PS
+        -- 창고 이름, 섹션 이름, 입고 날짜를 가져오기 위해 JOIN을 다시 추가합니다.
+        INNER JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+        INNER JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+        INNER JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        INNER JOIN Product P ON II.product_id = P.product_id
+        INNER JOIN Partner PR ON P.partner_id = PR.partner_id
+        INNER JOIN inbound I ON II.inbound_id = I.inbound_id
+
+        <include refid="wmsSearchCondition"/>
+
+        GROUP BY
+        P.product_id,
+        P.product_name,
+        PR.partner_name                                 -- 제품 기준으로 그룹화
+
+        ORDER BY
+        P.product_id DESC
+        LIMIT #{size} OFFSET #{skip}
+    </select>
+
+    <select id="countProductList" resultType="int">
+        SELECT
+        COUNT(DISTINCT P.product_id)
+        FROM
+        Product_Stock PS
+        INNER JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        INNER JOIN Product P ON II.product_id = P.product_id
+        INNER JOIN Partner PR ON P.partner_id = PR.partner_id
+
+        <include refid="wmsSearchCondition"/>
+    </select>
+
+</mapper>
