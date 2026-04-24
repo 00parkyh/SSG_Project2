@@ -29,23 +29,23 @@ public class SalesMapperTest {
         SalesVO salesVO = SalesVO.builder()
                 .warehouseName("테스트 창고")
                 .salesDate(LocalDate.now())
-                .category("테스트 카테고리")
+                .salesCategory("테스트 카테고리")
                 .clientName("테스트 거래처명")
-                .amount(12345L)
-                .description("SalesMapper 테스트")
+                .salesAmount(12345L)
+                .salesDescription("SalesMapper 테스트")
                 .build();
 
         salesMapper.save(salesVO);
 
-        Assertions.assertNotNull(salesVO.getId());
+        Assertions.assertNotNull(salesVO.getSalesID());
 
-        Optional<SalesVO> optionalVO = salesMapper.findById(salesVO.getId());
+        Optional<SalesVO> optionalVO = salesMapper.findById(salesVO.getSalesID());
 
         Assertions.assertTrue(optionalVO.isPresent());
 
         SalesVO findVO = optionalVO.get();
-        Assertions.assertEquals(12345L, findVO.getAmount());
-        Assertions.assertEquals("테스트 카테고리", findVO.getCategory());
+        Assertions.assertEquals(12345L, findVO.getSalesAmount());
+        Assertions.assertEquals("테스트 카테고리", findVO.getSalesCategory());
     }
 
     @Test
@@ -54,31 +54,31 @@ public class SalesMapperTest {
         SalesVO salesVO = SalesVO.builder()
                 .warehouseName("테스트 창고")
                 .salesDate(LocalDate.now())
-                .category("테스트 카테고리")
+                .salesCategory("테스트 카테고리")
                 .clientName("테스트 거래처명")
-                .amount(12345L)
-                .description("Update 테스트")
+                .salesAmount(12345L)
+                .salesDescription("Update 테스트")
                 .build();
 
         salesMapper.save(salesVO);
 
         SalesVO updateVO = salesVO.toBuilder()
-                .category("수정된 카테고리")
+                .salesCategory("수정된 카테고리")
                 .clientName("수정된 거래처명")
-                .amount(1000L)
-                .description("수정 완료")
+                .salesAmount(1000L)
+                .salesDescription("수정 완료")
                 .build();
 
         salesMapper.update(updateVO);
 
-        Optional<SalesVO> findOptional = salesMapper.findById(salesVO.getId());
+        Optional<SalesVO> findOptional = salesMapper.findById(salesVO.getSalesID());
         Assertions.assertTrue(findOptional.isPresent());
 
         SalesVO findVO = findOptional.get();
-        Assertions.assertEquals(1000L, findVO.getAmount());
-        Assertions.assertEquals("수정된 카테고리", findVO.getCategory());
+        Assertions.assertEquals(1000L, findVO.getSalesAmount());
+        Assertions.assertEquals("수정된 카테고리", findVO.getSalesCategory());
         Assertions.assertEquals("수정된 거래처명", findVO.getClientName());
-        Assertions.assertEquals("수정 완료", findVO.getDescription());
+        Assertions.assertEquals("수정 완료", findVO.getSalesDescription());
     }
 
     @Test
@@ -87,14 +87,14 @@ public class SalesMapperTest {
         SalesVO salesVO = SalesVO.builder()
                 .warehouseName("삭제용 창고")
                 .salesDate(LocalDate.now())
-                .category("삭제용 카테고리")
+                .salesCategory("삭제용 카테고리")
                 .clientName("삭제용 거래처명")
-                .amount(1L)
-                .description("삭제용 데이터 테스트")
+                .salesAmount(1L)
+                .salesDescription("삭제용 데이터")
                 .build();
 
         salesMapper.save(salesVO);
-        Long saveId = salesVO.getId();
+        Long saveId = salesVO.getSalesID();
 
         salesMapper.delete(saveId);
 
@@ -105,15 +105,14 @@ public class SalesMapperTest {
     @Test
     @DisplayName("매출 목록 조회(findAll) 및 페이징 테스트")
     void testFindAllWithPaging() {
-        // 데이터 20개 생성
         for (int i = 0; i < 20; i++) {
             salesMapper.save(SalesVO.builder()
                     .warehouseName("테스트 창고")
                     .clientName("테스트 거래처")
-                    .category("페이징")
-                    .amount(10L + i)
+                    .salesCategory("페이징")
+                    .salesAmount(10L + i)
                     .salesDate(LocalDate.now())
-                    .description("페이징 테스트 데이터 " + i)
+                    .salesDescription("페이징 테스트 데이터" + i)
                     .build());
         }
 

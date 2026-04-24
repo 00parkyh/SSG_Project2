@@ -55,7 +55,7 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
-    public void deleteInquiry(Long inquiryId, String password) {
-        inquiryMapper.deleteInquiry(inquiryId, password);
+    public void deleteInquiry(Long inquiryId, String inquiryPwd) {
+        inquiryMapper.deleteInquiry(inquiryId, inquiryPwd);
     }
 }

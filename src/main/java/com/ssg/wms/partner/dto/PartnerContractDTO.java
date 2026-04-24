@@ -14,5 +14,5 @@ public class PartnerContractDTO {
     private Integer partnerId;
     private LocalDate contractStart;
     private Long contractArea;
-    private PartnerStatus status;
+    private PartnerStatus contractStatus;
 }

@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExpenseVO {
-    private Long id;          // 지출 ID (PK)
+    private Long expenseID;          // 지출 ID (PK)
     private String expenseCode; // 지출 관리번호
-    private String status;
+    private String expenseStatus;
     private String warehouseName;    // 창고명
     private LocalDate expenseDate;   // 지출일자
-    private String category;         // 지출 분류
-    private Long amount;             // 지출액수
-    private String description;      // 지출 설명
+    private String expenseCategory;         // 지출 분류
+    private Long expenseAmount;             // 지출액수
+    private String expenseDescription;      // 지출 설명
     private LocalDateTime regDate;   // 등록일자
     private LocalDateTime modDate;   // 수정일자
 }

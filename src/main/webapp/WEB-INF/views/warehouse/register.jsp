@@ -255,9 +255,9 @@
 
         <h2>창고 기본 정보</h2>
 
-        <label for="name">창고 이름</label>
+        <label for="warehouseName">창고 이름</label>
         <div class="input-group name-check-group">
-            <input type="text" id="name" name="name" required onchange="document.getElementById('isNameChecked').value='false'; document.getElementById('nameCheckResult').textContent='';">
+            <input type="text" id="warehouseName" name="warehouseName" required onchange="document.getElementById('isNameChecked').value='false'; document.getElementById('nameCheckResult').textContent='';">
             <button type="button" onclick="checkDuplication()">중복 확인</button>
         </div>
         <div id="nameCheckResult" style="margin-bottom: 10px;"></div>
@@ -391,11 +391,11 @@
 
     // ==================== [AJAX URL 수정 및 팝업 추가된] 중복 확인 함수 ====================
     function checkDuplication() {
-        const name = $('#name').val().trim();
+        const warehouseName = $('#warehouseName').val().trim();
         const resultElement = $('#nameCheckResult');
         const isNameChecked = $('#isNameChecked');
 
-        if (name === "") {
+        if (warehouseName === "") {
             resultElement.text("이름을 입력해주세요.").css('color', 'orange');
             isNameChecked.val("false");
             return;
@@ -407,7 +407,7 @@
         $.ajax({
             url: url,
             type: 'GET',
-            data: { name: name },
+            data: { warehouseName: warehouseName },
             dataType: 'json',
             success: function(isDuplicated) {
                 if (isDuplicated === true) {

@@ -45,11 +45,18 @@ public class SalesServiceImpl implements SalesService {
     @Override
     @Transactional
     public Long saveSales(SalesSaveDTO dto) {
-        SalesVO salesVO = modelMapper.map(dto, SalesVO.class);
+        SalesVO salesVO = SalesVO.builder()
+                .salesDate(dto.getSalesDate())
+                .warehouseName(dto.getWarehouseName())
+                .salesCategory(dto.getCategory())
+                .clientName(dto.getClientName())
+                .salesAmount(dto.getAmount())
+                .salesDescription(dto.getDescription())
+                .build();
 
         salesMapper.save(salesVO);
 
-        Long newId = salesVO.getId();
+        Long newId = salesVO.getSalesID();
 
         String datePart = dto.getSalesDate().toString().replace("-", "").substring(2);
         String idPart = String.format("%05d", newId); // 5자리 ID
@@ -62,9 +69,16 @@ public class SalesServiceImpl implements SalesService {
 
     @Override
     public void updateSales(Long id, SalesSaveDTO dto) {
-        SalesVO salesVO = modelMapper.map(dto, SalesVO.class);
+        SalesVO salesVO = SalesVO.builder()
+                .salesDate(dto.getSalesDate())
+                .warehouseName(dto.getWarehouseName())
+                .salesCategory(dto.getCategory())
+                .clientName(dto.getClientName())
+                .salesAmount(dto.getAmount())
+                .salesDescription(dto.getDescription())
+                .build();
         SalesVO finalVO = salesVO.toBuilder()
-                .id(id)
+                .salesID(id)
                 .build();
         salesMapper.update(finalVO);
     }

@@ -21,7 +21,7 @@ public class MemberDTO {
     private String memberPhone;
     private String memberEmail;
     private Role role;
-    private AccountStatus status;
+    private AccountStatus memberStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String businessNumber;

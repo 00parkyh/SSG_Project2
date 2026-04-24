@@ -25,13 +25,13 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="status" class="form-label">상태</label>
-                            <select id="status" name="status" class="form-select">
+                            <label for="memberCriteriaStatus" class="form-label">상태</label>
+                            <select id="memberCriteriaStatus" name="memberCriteriaStatus" class="form-select">
                                 <option value="">전체</option>
-                                <option value="ACTIVE" ${criteria.status == 'ACTIVE' ? 'selected' : ''}>활성</option>
-                                <option value="INACTIVE" ${criteria.status == 'INACTIVE' ? 'selected' : ''}>비활성</option>
-                                <option value="REJECTED" ${criteria.status == 'REJECTED' ? 'selected' : ''}>승인 거절</option>
-                                <option value="PENDING" ${criteria.status == 'PENDING' ? 'selected' : ''}>승인 대기</option>
+                                <option value="ACTIVE" ${criteria.memberCriteriaStatus == 'ACTIVE' ? 'selected' : ''}>활성</option>
+                                <option value="INACTIVE" ${criteria.memberCriteriaStatus == 'INACTIVE' ? 'selected' : ''}>비활성</option>
+                                <option value="REJECTED" ${criteria.memberCriteriaStatus == 'REJECTED' ? 'selected' : ''}>승인 거절</option>
+                                <option value="PENDING" ${criteria.memberCriteriaStatus == 'PENDING' ? 'selected' : ''}>승인 대기</option>
                             </select>
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                         <ul class="pagination">
                             <c:if test="${pageDTO.prev}">
                                 <li class="page-item">
-                                    <a class="page-link" href="?pageNum=${pageDTO.startPage - 1}&keyword=${criteria.keyword}&status=${criteria.status}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
+                                    <a class="page-link" href="?pageNum=${pageDTO.startPage - 1}&keyword=${criteria.keyword}&memberCriteriaStatus=${criteria.memberCriteriaStatus}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
                                         <i class="tf-icon bx bx-chevron-left"></i>
                                     </a>
                                 </li>
@@ -149,7 +149,7 @@
 
                             <c:forEach begin="${pageDTO.startPage}" end="${pageDTO.endPage}" var="i">
                                 <li class="page-item ${i == pageDTO.pageNum ? 'active' : ''}">
-                                    <a class="page-link" href="?pageNum=${i}&keyword=${criteria.keyword}&status=${criteria.status}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
+                                    <a class="page-link" href="?pageNum=${i}&keyword=${criteria.keyword}&memberCriteriaStatus=${criteria.memberCriteriaStatus}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
                                             ${i}
                                     </a>
                                 </li>
@@ -157,7 +157,7 @@
 
                             <c:if test="${pageDTO.next}">
                                 <li class="page-item">
-                                    <a class="page-link" href="?pageNum=${pageDTO.endPage + 1}&keyword=${criteria.keyword}&status=${criteria.status}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
+                                    <a class="page-link" href="?pageNum=${pageDTO.endPage + 1}&keyword=${criteria.keyword}&memberCriteriaStatus=${criteria.memberCriteriaStatus}&startDate=${criteria.startDate}&endDate=${criteria.endDate}">
                                         <i class="tf-icon bx bx-chevron-right"></i>
                                     </a>
                                 </li>

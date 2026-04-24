@@ -20,6 +20,6 @@ public class InquiryDTO {
     private boolean isImportant;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private BoardStatus status;
-    private String password;
+    private BoardStatus inquiryStatus;
+    private String inquiryPwd;
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -7,10 +7,10 @@
 
     <!-- ✅ 출고품목 추가 -->
     <insert id="insertOutboundItem" parameterType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
-        INSERT INTO outboundItem (
-        outboundRequest_ID,
-        Product_ID,
-        outboundQuantity
+        INSERT INTO OutboundItem (
+        outbound_request_id,
+        product_id,
+        outbound_quantity
         )
         VALUES (
         #{outboundRequestId},
@@ -25,33 +25,33 @@
             resultType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
         SELECT
         outbound_item_id,
-        outboundRequest_ID,
-        Product_ID,
-        outboundQuantity
-        FROM outboundItem
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        outbound_request_id,
+        product_id,
+        outbound_quantity
+        FROM OutboundItem
+        WHERE outbound_request_id = #{outboundRequestId}
     </select>
 
     <!-- ✅ 출고품목 수정 -->
     <update id="updateOutboundItem" parameterType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
-        UPDATE outboundItem
+        UPDATE OutboundItem
         SET
-        Product_ID = #{productId},
-        outboundQuantity = #{outboundQuantity}
+        product_id = #{productId},
+        outbound_quantity = #{outboundQuantity}
         WHERE outbound_item_id = #{outboundItemId}
-        AND outboundRequest_ID = #{outboundRequestId}
+        AND outbound_request_id = #{outboundRequestId}
     </update>
 
     <!-- ✅ 특정 출고품목 삭제 -->
     <delete id="deleteOutboundItem" parameterType="long">
-        DELETE FROM outboundItem
+        DELETE FROM OutboundItem
         WHERE outbound_item_id = #{outboundItemId}
     </delete>
 
     <!-- ✅ 특정 출고요청의 품목 전체 삭제 -->
     <delete id="deleteOutboundItemsByRequestId" parameterType="long">
-        DELETE FROM outboundItem
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        DELETE FROM OutboundItem
+        WHERE outbound_request_id = #{outboundRequestId}
     </delete>
 
 </mapper>

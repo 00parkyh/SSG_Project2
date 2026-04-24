@@ -316,7 +316,7 @@
                 html += '<td>' + contract.contractId + '</td>';
                 html += '<td>' + formatDate(contract.contractStart) + '</td>';
                 html += '<td>' + (contract.contractArea ? formatNumber(contract.contractArea) + ' ㎡' : '-') + '</td>';
-                html += '<td>' + getStatusBadge(contract.status) + '</td>';
+                html += '<td>' + getStatusBadge(contract.contractStatus) + '</td>';
                 html += '</tr>';
             });
 

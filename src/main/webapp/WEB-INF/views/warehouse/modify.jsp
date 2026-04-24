@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>창고 수정: ${detailDTO.name}</title>
+    <title>창고 수정: ${detailDTO.warehouseName}</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8284a9e56dbc80e2ab8f41c23c1bbb0a&autoload=false&libraries=services"></script>
 
@@ -42,7 +42,7 @@
     <!-- 2. 창고 이름 -->
     <div style="margin-bottom: 15px;">
         <label style="background-color: #f7d8b8; padding: 5px;">창고 이름</label>
-        <input type="text" id="name" name="name" value="${detailDTO.name}" required style="width: 250px;">
+        <input type="text" id="warehouseName" name="warehouseName" value="${detailDTO.warehouseName}" required style="width: 250px;">
         <span id="nameCheckResult" style="margin-left: 10px;"></span>
         <!-- 수정 페이지에서는 이름 중복 검사 로직이 복잡해지므로, 변경 시에만 검사 필요 -->
     </div>

@@ -82,18 +82,18 @@
 
                 <!-- 비밀번호 -->
                 <div class="mb-4">
-                    <label class="form-label" for="password">
+                    <label class="form-label" for="inquiryPwd">
                         비밀번호 <span class="text-danger">*</span>
                     </label>
                     <input type="password"
-                           class="form-control ${not empty errors.password ? 'is-invalid' : ''}"
-                           id="password"
-                           name="password"
+                           class="form-control ${not empty errors.inquiryPwd ? 'is-invalid' : ''}"
+                           id="inquiryPwd"
+                           name="inquiryPwd"
                            placeholder="비밀번호를 입력하세요"
                            required/>
-                    <c:if test="${not empty errors.password}">
+                    <c:if test="${not empty errors.inquiryPwd}">
                         <div class="invalid-feedback">
-                                ${errors.password}
+                                ${errors.inquiryPwd}
                         </div>
                     </c:if>
                     <div class="form-text">

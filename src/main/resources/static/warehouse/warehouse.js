@@ -108,7 +108,7 @@ function initMapForList(mapId, data) {
                     box-shadow: 2px 2px 2px rgba(0,0,0,0.3);
                     white-space: nowrap;
                     text-align: center;
-                ">${w.name}</div>`,
+                ">${w.warehouseName}</div>`,
                 yAnchor: 1 // 마커 바로 위
             });
 
@@ -151,7 +151,7 @@ function initMapForDetail(mapId, warehouse) {
             box-shadow: 2px 2px 2px rgba(0,0,0,0.3);
             white-space: nowrap;
             text-align: center;
-        ">${warehouse.name}</div>`,
+        ">${warehouse.warehouseName}</div>`,
         yAnchor: 1
     });
 }

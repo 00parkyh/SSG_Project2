@@ -1,18 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssg.wms.finance.mappers.ExpenseMapper">
 
     <resultMap id="ExpenseResultMap" type="com.ssg.wms.finance.domain.ExpenseVO">
-        <id property="id" column="expense_id"/>
+        <id property="expenseID" column="expense_id"/>
+        <result property="expenseCode" column="expense_code"/>
         <result property="warehouseName" column="warehouse_name"/>
         <result property="expenseDate" column="expense_date"/>
-        <result property="category" column="category"/>
-        <result property="amount" column="amount"/>
-        <result property="description" column="description"/>
+        <result property="expenseCategory" column="category"/>
+        <result property="expenseAmount" column="amount"/>
+        <result property="expenseDescription" column="description"/>
         <result property="regDate" column="reg_date"/>
         <result property="modDate" column="mod_date"/>
-        <result property="status" column="status"/>
+        <result property="expenseStatus" column="status"/>
     </resultMap>
 
     <sql id="searchConditions">
@@ -36,48 +37,48 @@
     </sql>
 
     <select id="findAll" resultMap="ExpenseResultMap" parameterType="com.ssg.wms.finance.dto.ExpenseRequestDTO">
-        SELECT * FROM expense
+        SELECT * FROM Expense
         <include refid="searchConditions"/>
         ORDER BY expense_date DESC, expense_id DESC
         LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="count" resultType="int" parameterType="com.ssg.wms.finance.dto.ExpenseRequestDTO">
-        SELECT COUNT(*) FROM expense
+        SELECT COUNT(*) FROM Expense
         <include refid="searchConditions"/>
     </select>
 
-    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="expense_id">
-        INSERT INTO expense (warehouse_name, expense_date, category, amount, description)
-        VALUES (#{warehouseName}, #{expenseDate}, #{category}, #{amount}, #{description})
+    <insert id="save" useGeneratedKeys="true" keyProperty="expenseID" keyColumn="expense_id">
+        INSERT INTO Expense (warehouse_name, expense_date, category, amount, description)
+        VALUES (#{warehouseName}, #{expenseDate}, #{expenseCategory}, #{expenseAmount}, #{expenseDescription})
     </insert>
 
     <select id="findById" resultMap="ExpenseResultMap">
         SELECT *
-        FROM expense
+        FROM Expense
         WHERE expense_id = #{id}
           AND status = 'ACTIVE' </select>
 
     <update id="update">
-        UPDATE expense
+        UPDATE Expense
         SET warehouse_name = #{warehouseName},
             expense_date   = #{expenseDate},
-            category       = #{category},
-            amount         = #{amount},
-            description    = #{description},
+            category       = #{expenseCategory},
+            amount         = #{expenseAmount},
+            description    = #{expenseDescription},
             mod_date       = NOW()
-        WHERE expense_id = #{id}
+        WHERE expense_id = #{expenseID}
           AND status = 'ACTIVE' </update>
 
     <update id="delete">
-        UPDATE expense
+        UPDATE Expense
         SET status = 'DELETED'
         WHERE expense_id = #{id}
     </update>
 
     <select id="findSummaryByCategory" resultType="com.ssg.wms.finance.dto.CategorySummaryDTO">
         SELECT category, SUM(amount) AS totalAmount
-        FROM expense
+        FROM Expense
         WHERE YEAR(expense_date) = #{year}
           AND status = 'ACTIVE'
         GROUP BY category
@@ -85,7 +86,7 @@
 
     <select id="findMonthlySummary" resultType="com.ssg.wms.finance.dto.DashboardSummaryDTO">
         SELECT MONTH(expense_date) AS month, SUM(amount) AS totalExpenses
-        FROM expense
+        FROM Expense
         WHERE YEAR(expense_date) = #{year}
           AND status = 'ACTIVE'
         GROUP BY MONTH(expense_date)
@@ -93,7 +94,7 @@
 
     <select id="findSummaryByCategoryForMonth" resultType="com.ssg.wms.finance.dto.CategorySummaryDTO">
         SELECT category, SUM(amount) AS totalAmount
-        FROM expense
+        FROM Expense
         WHERE YEAR(expense_date) = #{year}
           AND MONTH(expense_date) = #{month}
           AND status = 'ACTIVE'
@@ -101,14 +102,14 @@
     </select>
 
     <update id="updateCode">
-        UPDATE expense
+        UPDATE Expense
         SET expense_code = #{expenseCode}
         WHERE expense_id = #{id}
     </update>
 
     <select id="findTotalExpenseByMonth" resultType="long">
         SELECT COALESCE(SUM(amount), 0)
-        FROM expense
+        FROM Expense
         WHERE YEAR(expense_date) = #{year}
           AND MONTH(expense_date) = #{month}
           AND status = 'ACTIVE' </select>

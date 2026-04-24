@@ -20,5 +20,5 @@ public class AnnouncementDTO {
     private boolean isImportant;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private BoardStatus status;
+    private BoardStatus announcementStatus;
 }

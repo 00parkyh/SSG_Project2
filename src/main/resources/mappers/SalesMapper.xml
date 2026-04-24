@@ -1,20 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssg.wms.finance.mappers.SalesMapper">
 
     <resultMap id="SalesResultMap" type="com.ssg.wms.finance.domain.SalesVO">
-        <id property="id" column="sales_id"/>
+        <id property="salesID" column="sales_id"/>
         <result property="salesCode" column="sales_code"/>
+        <result property="salesStatus" column="status"/>
         <result property="warehouseName" column="warehouse_name"/>
         <result property="salesDate" column="sales_date"/>
-        <result property="category" column="category"/>
+        <result property="salesCategory" column="category"/>
         <result property="clientName" column="client_name"/>
-        <result property="amount" column="amount"/>
-        <result property="description" column="description"/>
+        <result property="salesAmount" column="amount"/>
+        <result property="salesDescription" column="description"/>
         <result property="regDate" column="reg_date"/>
         <result property="modDate" column="mod_date"/>
-        <result property="status" column="status"/>
     </resultMap>
 
     <sql id="searchConditions">
@@ -39,56 +39,56 @@
     </sql>
 
     <select id="findAll" resultMap="SalesResultMap" parameterType="com.ssg.wms.finance.dto.SalesRequestDTO">
-        SELECT * FROM sales
+        SELECT * FROM Sales
         <include refid="searchConditions"/>
         ORDER BY sales_date DESC, sales_id DESC
         LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="count" resultType="int" parameterType="com.ssg.wms.finance.dto.SalesRequestDTO">
-        SELECT COUNT(*) FROM sales
+        SELECT COUNT(*) FROM Sales
         <include refid="searchConditions"/>
     </select>
 
-    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="sales_id">
-        INSERT INTO sales (warehouse_name, sales_date, category, client_name, amount, description)
-        VALUES (#{warehouseName}, #{salesDate}, #{category}, #{clientName}, #{amount}, #{description})
+    <insert id="save" useGeneratedKeys="true" keyProperty="salesID" keyColumn="sales_id">
+        INSERT INTO Sales (warehouse_name, sales_date, category, client_name, amount, description)
+        VALUES (#{warehouseName}, #{salesDate}, #{salesCategory}, #{clientName}, #{salesAmount}, #{salesDescription})
     </insert>
 
     <select id="findById" resultMap="SalesResultMap">
         SELECT *
-        FROM sales
+        FROM Sales
         WHERE sales_id = #{id}
           AND status = 'ACTIVE' </select>
 
     <update id="update">
-        UPDATE sales
+        UPDATE Sales
         SET warehouse_name = #{warehouseName},
             sales_date     = #{salesDate},
-            category       = #{category},
+            category       = #{salesCategory},
             client_name    = #{clientName},
-            amount         = #{amount},
-            description    = #{description},
+            amount         = #{salesAmount},
+            description    = #{salesDescription},
             mod_date       = NOW()
-        WHERE sales_id = #{id}
+        WHERE sales_id = #{salesID}
           AND status = 'ACTIVE' </update>
 
     <update id="delete">
-        UPDATE sales
+        UPDATE Sales
         SET status = 'DELETED'
         WHERE sales_id = #{id}
     </update>
 
     <select id="findMonthlySummary" resultType="com.ssg.wms.finance.dto.DashboardSummaryDTO">
         SELECT MONTH(sales_date) AS month, SUM(amount) AS totalSales
-        FROM sales
+        FROM Sales
         WHERE YEAR(sales_date) = #{year}
           AND status = 'ACTIVE'
         GROUP BY MONTH(sales_date)
     </select>
 
     <update id="updateCode">
-        UPDATE sales
+        UPDATE Sales
         SET sales_code = #{salesCode}
         WHERE sales_id = #{id}
     </update>
@@ -102,7 +102,7 @@
 
     <select id="findTotalSalesByMonth" resultType="long">
         SELECT COALESCE(SUM(amount), 0)
-        FROM sales
+        FROM Sales
         WHERE YEAR(sales_date) = #{year}
           AND MONTH(sales_date) = #{month}
           AND status = 'ACTIVE'

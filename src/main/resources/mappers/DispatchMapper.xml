@@ -1,51 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssg.wms.outbound.mappers.DispatchMapper">
 
-
-
-
     <select id="getDispatchNameList">
-        select dispatch_id,carID, Cartype, driverName, assignedDate, loadedBOX
-        from dispatch
-        where driverName = #{driverName}
+        select dispatch_id, car_id, car_type, driver_name, assigned_date, loaded_box
+        from Dispatch
+        where driver_name = #{driverName}
 
         <if test="criteria != null">
-            ORDER BY assignedDate DESC
+            ORDER BY assigned_date DESC
             LIMIT #{criteria.amount} OFFSET #{criteria.skip}
         </if>
+
     </select>
-
-
-
-
 
     <select id="getDispatchDetailById">
-        select dispatch_ID, approvedOrder_ID, carID, Cartype, driverName, assignedDate, dispatchStatus, loadedBOX, maximumBOX
-        from dispatch
-        where dispatch_ID = #{dispatchId}
+        select dispatch_id, approved_order_id, car_id, car_type, driver_name, assigned_date, dispatch_status, loaded_box, maximum_box
+        from Dispatch
+        where dispatch_id = #{dispatchId}
     </select>
-
-
-
-
-
 <!--    배차 정보 등록-->
     <insert id="insertDispatchInformation"
             parameterType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO"
             useGeneratedKeys="true"
             keyProperty="dispatchId">
-        INSERT INTO dispatch (
-        approvedOrder_ID,
-        carID,
-        Cartype,
-        driverName,
-        assignedDate,
-        dispatchStatus,
-        loadedBOX,
-        maximumBOX
+        INSERT INTO Dispatch (
+        approved_order_id,
+        car_id,
+        car_type,
+        driver_name,
+        assigned_date,
+        dispatch_status,
+        loaded_box,
+        maximum_box
         )
         VALUES (
         #{approvedOrderID},
@@ -59,34 +48,25 @@
         )
     </insert>
 
-
-
-
-    
     <update id="updateDispatchInformation" parameterType="com.ssg.wms.outbound.domain.dto.DispatchDTO">
-        UPDATE dispatch
+        UPDATE Dispatch
         SET
-        carID = #{carId},
-        Cartype = #{carType},
-        driverName = #{driverName},
-        dispatchStatus = #{dispatchStatus}
-        warehouse_id = #{warehouseId}
+        car_id = #{carId},
+        car_type = #{carType},
+        driver_name = #{driverName},
+        dispatch_status = #{dispatchStatus}
         WHERE
-        approvedOrder_ID = #{approvedOrderID}
+        approved_order_id = #{approvedOrderID}
     </update>
-
-
-
-
 
 <!--    // 운송장 번호 등록-->
     <!--    등록완료 PENDING, ASSIGNED등등 으로 바꾸가-->
     <insert id="insertMinimalWaybill">
-        INSERT INTO waybill (
+        INSERT INTO Waybill (
         dispatch_id,
         waybill_number,
         waybill_date,
-        waybill_Status
+        waybill_status
         ) VALUES (
         #{dispatchId},
         #{waybillNumber},
@@ -94,33 +74,28 @@
         '등록완료'  )
     </insert>
 
-
     <select id="getDispatchIdByApprovedOrderId" resultType="java.lang.Long">
-        SELECT dispatch_ID
-        FROM dispatch
-        WHERE approvedOrder_ID = #{approvedOrderId}
+        SELECT dispatch_id
+        FROM Dispatch
+        WHERE approved_order_id = #{approvedOrderId}
     </select>
 
-
     <update id="updateLoadedBox">
-        UPDATE dispatch
+        UPDATE Dispatch
         SET
-        loadedBOX = #{loadedBox}
+        loaded_box = #{loadedBox}
         WHERE
-        dispatch_ID = #{dispatchId}
-        AND approvedOrder_ID = #{approvedOrderId}
+        dispatch_id = #{dispatchId}
+        AND approved_order_id = #{approvedOrderId}
     </update>
-
-
-
 
     <select id="getAllDrivers" resultType="com.ssg.wms.outbound.domain.dto.DispatchDTO">
         SELECT
         driver_name  AS driverName,
         car_id       AS carId,
-        car_number   AS carNumber,  -- ✅ 추가
+        car_number   AS carNumber,
         car_type     AS carType
-        FROM driver
+        FROM Driver
     </select>
 
 </mapper>

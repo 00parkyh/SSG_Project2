@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
@@ -31,14 +31,13 @@
             P.product_name AS productName,
             PR.partner_name AS brandName,
             PS.quantity AS quantity,
-            W.name AS warehouseName,
+            W.warehouse_name AS warehouseName,
             S.section_name AS sectionName
-        FROM
-        Product_Stock PS
-        JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        FROM ProductStock PS
+        JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
         JOIN Product P ON II.product_id = P.product_id
         JOIN Partner PR ON P.partner_id = PR.partner_id
-        JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+        JOIN Warehouse W ON PS.warehouse_id = W.warehouse_id
         JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
 
         <include refid="wmsSearchCondition"/>
@@ -50,12 +49,11 @@
 
     <select id="countStockList" resultType="int">
         SELECT COUNT(PS.ps_id)
-        FROM
-        Product_Stock PS
-        JOIN inbound_item II ON PS.inbound_item_id = II.inbound_item_id
+        FROM ProductStock PS
+        JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
         JOIN Product P ON II.product_id = P.product_id
         JOIN Partner PR ON P.partner_id = PR.partner_id
-        JOIN WAREHOUSE W ON PS.warehouse_id = W.warehouse_id
+        JOIN Warehouse W ON PS.warehouse_id = W.warehouse_id
         JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
 
         <include refid="wmsSearchCondition"/>

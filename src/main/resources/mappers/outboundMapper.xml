@@ -7,17 +7,17 @@
 
     <!-- ✅ 출고요청 리스트 매핑 -->
     <resultMap id="OutboundRequestListMap" type="com.ssg.wms.outbound.domain.dto.OutboundDTO">
-        <id property="outboundRequestId" column="outboundRequest_ID"/>
+        <id property="outboundRequestId" column="outbound_request_id"/>
         <result property="brandName" column="brandName"/>
         <result property="requestUserName" column="requestUserName"/>
-        <result property="outboundDate" column="outboundDate"/>
-        <result property="approvedStatus" column="approvedStatus"/>
+        <result property="outboundDate" column="outbound_date"/>
+        <result property="approvedStatus" column="approved_status"/>
 
         <collection property="outboundRequestItems"
                     ofType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO"
                     javaType="java.util.List">
             <id property="outboundItemId" column="outbound_item_id"/>
-            <result property="outboundQuantity" column="outboundQuantity"/>
+            <result property="outboundQuantity" column="outbound_quantity"/>
             <result property="productName" column="product_name"/>
             <result property="categoryName" column="category_name"/>
         </collection>
@@ -25,34 +25,34 @@
 
     <!-- ✅ 출고요청 상세 조회 매핑 -->
     <resultMap id="OutboundRequestDetailMap" type="com.ssg.wms.outbound.domain.dto.OutboundDTO">
-        <id property="outboundRequestId" column="outboundRequestId"/>
-        <result property="outboundDate" column="outboundDate"/>
-        <result property="approvedStatus" column="approvedStatus"/>
-        <result property="outboundAddress" column="outboundAddress"/>
-        <result property="requestedDeliveryDate" column="requestedDeliveryDate"/>
+        <id property="outboundRequestId" column="outbound_request_id"/>
+        <result property="outboundDate" column="outbound_date"/>
+        <result property="approvedStatus" column="approved_status"/>
+        <result property="outboundAddress" column="outbound_address"/>
+        <result property="requestedDeliveryDate" column="requested_delivery_date"/>
         <result property="brandName" column="brandName"/>
         <result property="requestUserName" column="requestUserName"/>
         <result property="staffName" column="staffName"/>
-        <result property="dispatchStatus" column="dispatchStatus"/>
-        <result property="waybillNumber" column="waybillNumber"/>
-        <result property="waybillStatus" column="waybillStatus"/>
+        <result property="dispatchStatus" column="dispatch_status"/>
+        <result property="waybillNumber" column="waybill_number"/>
+        <result property="waybillStatus" column="waybill_status"/>
 
         <collection property="outboundRequestItems"
                     ofType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
             <id property="outboundItemId" column="outbound_item_id"/>
             <result property="productName" column="product_name"/>
             <result property="categoryName" column="category_name"/>
-            <result property="outboundQuantity" column="outboundQuantity"/>
+            <result property="outboundQuantity" column="outbound_quantity"/>
         </collection>
     </resultMap>
 
     <!-- ✅ 출고요청 등록 -->
     <insert id="insertOutboundRequest" useGeneratedKeys="true" keyProperty="outboundRequestId">
-        INSERT INTO outboundRequest (
-        outboundDate,
-        approvedStatus,
-        outboundAddress,
-        requestedDeliveryDate,
+        INSERT INTO OutboundRequest (
+        outbound_date,
+        approved_status,
+        outbound_address,
+        requested_delivery_date,
         member_id,
         warehouse_id,
         staff_id
@@ -72,68 +72,65 @@
     <insert id="insertOutboundOrderAfterRequest"
             useGeneratedKeys="true"
             keyProperty="approvedOrderID"
-            keyColumn="approvedOrder_ID"
+            keyColumn="approved_order_id"
             parameterType="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
-        INSERT INTO outboundOrder (outboundRequest_ID, orderStatus, approvedDate)
+        INSERT INTO OutboundOrder (outbound_request_id, order_status, approved_date)
         VALUES (#{outboundRequestID}, 'PENDING', NOW());
     </insert>
 
     <!-- ✅ 전체 출고요청 조회 -->
     <select id="selectAllShipment" resultMap="OutboundRequestListMap">
         SELECT
-        sr.outboundRequest_ID,
+        sr.outbound_request_id,
         Pt.partner_name AS brandName,
         M.member_name AS requestUserName,
-        sr.outboundDate,
+        sr.outbound_date,
         CASE
-        WHEN sr.approvedStatus = 'APPROVED' THEN 'approved'
-        WHEN sr.approvedStatus = 'PENDING' THEN '승인대기'
-        WHEN sr.approvedStatus = 'COMPANION' THEN '반려'
-        ELSE sr.approvedStatus
-        END AS approvedStatus
-        FROM outboundRequest sr
+        WHEN sr.approved_status = 'APPROVED' THEN 'approved'
+        WHEN sr.approved_status = 'PENDING' THEN '승인대기'
+        WHEN sr.approved_status = 'COMPANION' THEN '반려'
+        ELSE sr.approved_status
+        END AS approved_status
+        FROM OutboundRequest sr
         INNER JOIN Member M ON sr.member_id = M.member_id
         INNER JOIN Partner Pt ON M.partner_id = Pt.partner_id
         WHERE sr.member_id = #{memberId}
 
         <if test="status != null and status != ''">
             AND (
-            (sr.approvedStatus = 'APPROVED' AND #{status} = 'approved')
-            OR (sr.approvedStatus = 'PENDING' AND #{status} = '승인대기')
-            OR (sr.approvedStatus = 'COMPANION' AND #{status} = '반려')
+            (sr.approved_status = 'APPROVED' AND #{status} = 'approved')
+            OR (sr.approved_status = 'PENDING' AND #{status} = '승인대기')
+            OR (sr.approved_status = 'COMPANION' AND #{status} = '반려')
             )
         </if>
 
-        ORDER BY sr.outboundRequest_ID DESC
+        ORDER BY sr.outbound_request_id DESC
     </select>
-
 
     <!-- ✅ 특정 사용자 출고요청 목록 조회 -->
     <select id="selectOutboundRequestByUserId" resultMap="OutboundRequestListMap">
         SELECT
-        sr.outboundRequest_ID,
+        sr.outbound_request_id,
         p.partner_name AS brandName,
         m.member_name AS requestUserName,
-        sr.outboundDate,
+        sr.outbound_date,
         CASE
-        WHEN sr.approvedStatus = 'APPROVED' THEN 'approved'
-        WHEN sr.approvedStatus = 'PENDING' THEN '승인대기'
-        WHEN sr.approvedStatus = 'COMPANION' THEN '반려'
-        ELSE sr.approvedStatus
-        END AS approvedStatus
-        FROM outboundRequest sr
+        WHEN sr.approved_status = 'APPROVED' THEN 'approved'
+        WHEN sr.approved_status = 'PENDING' THEN '승인대기'
+        WHEN sr.approved_status = 'COMPANION' THEN '반려'
+        ELSE sr.approved_status
+        END AS approved_status
+        FROM OutboundRequest sr
         INNER JOIN Member m ON sr.member_id = m.member_id
         INNER JOIN Partner p ON p.partner_id = m.partner_id
         WHERE m.member_id = #{memberId}
 
         <if test="status != null and status != ''">
-            AND sr.approvedStatus = #{status}
+            AND sr.approved_status = #{status}
         </if>
 
-        ORDER BY sr.outboundRequest_ID DESC
+        ORDER BY sr.outbound_request_id DESC
     </select>
-
-
 
     <!-- ✅ 출고 품목 조회 -->
     <select id="getOutboundRequestItems" resultType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
@@ -141,42 +138,42 @@
         si.outbound_item_id AS outboundItemId,
         p.product_name AS productName,
         c.category_name AS categoryName,
-        si.outboundQuantity AS outboundQuantity
-        FROM outboundItem si
-        INNER JOIN Product p ON si.Product_ID = p.product_id
+        si.outbound_quantity AS outbound_quantity
+        FROM OutboundItem si
+        INNER JOIN Product p ON si.product_id = p.product_id
         INNER JOIN Category c ON p.category_cd = c.category_cd
-        WHERE si.outboundRequest_ID = #{outboundRequestId}
+        WHERE si.outbound_request_id = #{outboundRequestId}
     </select>
 
     <!-- ✅ 출고요청 상세 조회 -->
     <select id="getRequestDetailByUser" resultMap="OutboundRequestDetailMap">
         SELECT
-        sr.outboundRequest_ID AS outboundRequestId,
-        sr.outboundDate,
-        sr.approvedStatus,
-        sr.outboundAddress,
-        sr.requestedDeliveryDate,
+        sr.outbound_request_id AS outbound_request_id,
+        sr.outbound_date,
+        sr.approved_status,
+        sr.outbound_address,
+        sr.requested_delivery_date,
         M.member_name AS requestUserName,
         Pt.partner_name AS brandName,
         st.staff_name AS staffName,
-        COALESCE(d.dispatchStatus, '대기') AS dispatchStatus,
-        COALESCE(w.waybill_number, '-') AS waybillNumber,
-        COALESCE(w.waybill_status, '대기') AS waybillStatus,
+        COALESCE(d.dispatch_status, '대기') AS dispatch_status,
+        COALESCE(w.waybill_number, '-') AS waybill_number,
+        COALESCE(w.waybill_status, '대기') AS waybill_status,
         si.outbound_item_id,
-        si.outboundQuantity,
+        si.outbound_quantity,
         p.product_name,
         c.category_name
-        FROM outboundRequest sr
+        FROM OutboundRequest sr
         INNER JOIN Member M ON sr.member_id = M.member_id
         LEFT JOIN Staff st ON sr.staff_id = st.staff_id
         LEFT JOIN Partner Pt ON M.partner_id = Pt.partner_id
-        LEFT JOIN outboundOrder o ON sr.outboundRequest_ID = o.outboundRequest_ID
-        LEFT JOIN dispatch d ON o.approvedOrder_ID = d.approvedOrder_ID
-        LEFT JOIN waybill w ON w.dispatch_ID = d.dispatch_ID
-        LEFT JOIN outboundItem si ON sr.outboundRequest_ID = si.outboundRequest_ID
-        LEFT JOIN Product p ON si.Product_ID = p.product_id
+        LEFT JOIN OutboundOrder o ON sr.outbound_request_id = o.outbound_request_id
+        LEFT JOIN Dispatch d ON o.approved_order_id = d.approved_order_id
+        LEFT JOIN Waybill w ON w.dispatch_id = d.dispatch_id
+        LEFT JOIN OutboundItem si ON sr.outbound_request_id = si.outbound_request_id
+        LEFT JOIN Product p ON si.product_id = p.product_id
         LEFT JOIN Category c ON p.category_cd = c.category_cd
-        WHERE sr.outboundRequest_ID = #{outboundRequestId}
+        WHERE sr.outbound_request_id = #{outboundRequestId}
         <if test="memberId != null">
             AND sr.member_id = #{memberId}
         </if>
@@ -184,69 +181,65 @@
 
     <!-- ✅ 출고요청 수정 -->
     <update id="updateOutboundRequestMain">
-        UPDATE outboundRequest
+        UPDATE OutboundRequest
         SET
-        outboundAddress = #{dto.outboundAddress},
-        requestedDeliveryDate = #{dto.requestedDeliveryDate}
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        outbound_address = #{dto.outboundAddress},
+        requested_delivery_date = #{dto.requestedDeliveryDate}
+        WHERE outbound_request_id = #{outboundRequestId}
         AND member_id = #{memberId}
     </update>
 
     <!-- ✅ 출고 품목 수정 -->
     <update id="updateOutboundItem">
-        UPDATE outboundItem
+        UPDATE OutboundItem
         SET
-        Product_ID = #{item.productId},
-        outboundQuantity = #{item.outboundQuantity}
+        product_id = #{item.productId},
+        outbound_quantity = #{item.outboundQuantity}
         WHERE outbound_item_id = #{item.outboundItemId}
-        AND outboundRequest_ID = #{outboundRequestId}
+        AND outbound_request_id = #{outboundRequestId}
     </update>
-
-
 
     <!-- 1️⃣ 운송장 삭제 -->
     <delete id="deleteWaybillByRequestId">
         DELETE w
-        FROM waybill w
-        INNER JOIN dispatch d ON w.dispatch_ID = d.dispatch_ID
-        INNER JOIN outboundOrder o ON d.approvedOrder_ID = o.approvedOrder_ID
-        WHERE o.outboundRequest_ID = #{outboundRequestId}
+        FROM Waybill w
+        INNER JOIN Dispatch d ON w.dispatch_id = d.dispatch_id
+        INNER JOIN OutboundOrder o ON d.approved_order_id = o.approved_order_id
+        WHERE o.outbound_request_id = #{outboundRequestId}
     </delete>
 
     <!-- 2️⃣ 배차 삭제 -->
     <delete id="deleteDispatchByRequestId">
         DELETE d
-        FROM dispatch d
-        INNER JOIN outboundOrder o ON d.approvedOrder_ID = o.approvedOrder_ID
-        WHERE o.outboundRequest_ID = #{outboundRequestId}
+        FROM Dispatch d
+        INNER JOIN OutboundOrder o ON d.approved_order_id = o.approved_order_id
+        WHERE o.outbound_request_id = #{outboundRequestId}
     </delete>
 
     <!-- 3️⃣ 출고지시서 삭제 -->
     <delete id="deleteShipmentOrder">
-        DELETE FROM outboundOrder
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        DELETE FROM OutboundOrder
+        WHERE outbound_request_id = #{outboundRequestId}
     </delete>
 
     <!-- 4️⃣ 품목 삭제 -->
     <delete id="deleteOutboundItemsByRequestId">
-        DELETE FROM outboundItem
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        DELETE FROM OutboundItem
+        WHERE outbound_request_id = #{outboundRequestId}
     </delete>
 
     <!-- 5️⃣ 출고요청 삭제 -->
     <delete id="deleteRequest">
-        DELETE FROM outboundRequest
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        DELETE FROM OutboundRequest
+        WHERE outbound_request_id = #{outboundRequestId}
         AND member_id = #{memberId}
     </delete>
 
-
-
     <!-- ✅ 출고 승인 상태 조회 -->
     <select id="getOutboundOrderStatusByRequestId" resultType="java.lang.String">
-        SELECT approvedStatus
-        FROM outboundRequest
-        WHERE outboundRequest_ID = #{outboundRequestId}
+        SELECT approved_status
+        FROM OutboundRequest
+        WHERE outbound_request_id = #{outboundRequestId}
     </select>
 
 </mapper>

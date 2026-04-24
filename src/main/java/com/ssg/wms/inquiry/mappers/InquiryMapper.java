@@ -18,5 +18,5 @@ public interface InquiryMapper {
     void updateInquiry(InquiryDTO dto);
 
     void deleteInquiry(@Param(value = "inquiryId") Long inquiryId,
-                       @Param(value = "password") String password);
+                       @Param(value = "inquiryPwd") String inquiryPwd);
 }

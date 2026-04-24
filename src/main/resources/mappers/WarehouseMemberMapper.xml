@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -7,7 +7,7 @@
 
     <resultMap id="warehouseListResultMap" type="com.ssg.wms.warehouse.dto.WarehouseListDTO">
         <id property="warehouseId" column="warehouse_id"/>
-        <result property="name" column="name"/>
+        <result property="warehouseName" column="warehouse_name"/>
         <result property="warehouseType" column="warehouse_type"/>
         <result property="address" column="address"/>
         <result property="latitude" column="latitude"/>
@@ -36,7 +36,7 @@
     <resultMap id="warehouseDetailResultMap" type="com.ssg.wms.warehouse.dto.WarehouseDetailDTO">
         <id property="warehouseId" column="warehouse_id"/>
         <result property="adminId" column="admin_id"/>
-        <result property="name" column="name"/>
+        <result property="warehouseName" column="warehouse_name"/>
         <result property="warehouseType" column="warehouse_type"/>
         <result property="warehouseCapacity" column="warehouse_capacity"/>
         <result property="warehouseStatus" column="warehouse_status"/>
@@ -53,17 +53,17 @@
             resultMap="warehouseListResultMap">
         SELECT
         warehouse_id,
-        name,
+        warehouse_name,
         warehouse_type,
         address,
         latitude,
         longitude,
         warehouse_status, latest_update_date,
         registration_date
-        FROM WAREHOUSE
+        FROM Warehouse
         WHERE 1=1
         <if test="warehouseName != null and warehouseName != ''">
-            AND name LIKE CONCAT('%', #{warehouseName}, '%')
+            AND warehouse_name LIKE CONCAT('%', #{warehouseName}, '%')
         </if>
         <if test="warehouseAddress != null and warehouseAddress != ''">
             AND address LIKE CONCAT('%', #{warehouseAddress}, '%')
@@ -79,14 +79,14 @@
 
     <select id="selectWarehouseDetailById" parameterType="long" resultMap="warehouseDetailResultMap">
         SELECT
-            W.warehouse_id, W.admin_id, W.name, W.address, W.latitude, W.longitude,
+            W.warehouse_id, W.admin_id, W.warehouse_name, W.address, W.latitude, W.longitude,
             W.warehouse_type, W.warehouse_capacity, W.warehouse_status,
             W.registration_date, W.latest_update_date,
             S.section_id, S.section_name, S.section_type, S.section_purpose, S.allocated_area,
             L.location_id, L.location_code, L.floor_num, L.location_type_code, L.max_volume
-        FROM WAREHOUSE W
-                 LEFT JOIN SECTION S ON W.warehouse_id = S.warehouse_id
-                 LEFT JOIN LOCATION L ON W.warehouse_id = L.warehouse_id
+        FROM Warehouse W
+                 LEFT JOIN Section S ON W.warehouse_id = S.warehouse_id
+                 LEFT JOIN Location L ON W.warehouse_id = L.warehouse_id
         WHERE W.warehouse_id = #{id}
     </select>
 </mapper>

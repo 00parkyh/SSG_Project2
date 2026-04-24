@@ -1,11 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssg.wms.announcement.mappers.AnnouncementMapper">
 
     <select id="selectAnnouncements" resultType="com.ssg.wms.announcement.dto.AnnouncementDTO">
-        SELECT *
-        FROM announcement
+        SELECT announcement_id,
+               title,
+               content,
+               writer,
+               is_important,
+               created_at,
+               updated_at,
+               status AS announcementStatus
+        FROM Announcement
         WHERE status = 'AVAILABLE'
         <if test="keyword != null and keyword != ''">
             AND title LIKE CONCAT('%', #{keyword}, '%')
@@ -16,7 +23,7 @@
 
     <select id="countAnnouncements" resultType="int">
         SELECT COUNT(*)
-        FROM announcement
+        FROM Announcement
         WHERE status = 'AVAILABLE'
         <if test="keyword != null and keyword != ''">
             AND title LIKE CONCAT('%', #{keyword}, '%')
@@ -24,18 +31,25 @@
     </select>
 
     <select id="selectAnnouncementById" resultType="com.ssg.wms.announcement.dto.AnnouncementDTO">
-        SELECT *
-        FROM announcement
+        SELECT announcement_id,
+               title,
+               content,
+               writer,
+               is_important,
+               created_at,
+               updated_at,
+               status AS announcementStatus
+        FROM Announcement
         WHERE announcement_id = #{id}
     </select>
 
     <insert id="insertAnnouncement" useGeneratedKeys="true" keyProperty="announcementId">
-        INSERT INTO announcement (title, content, writer, is_important)
+        INSERT INTO Announcement (title, content, writer, is_important)
         VALUES (#{title}, #{content}, #{writer}, #{isImportant});
     </insert>
 
     <update id="updateAnnouncement">
-        UPDATE announcement
+        UPDATE Announcement
         SET title = #{title},
             content = #{content},
             is_important = #{isImportant},
@@ -44,7 +58,7 @@
     </update>
 
     <update id="deleteAnnouncement">
-        UPDATE announcement
+        UPDATE Announcement
         SET status = 'DELETED'
         WHERE announcement_id = #{id}
     </update>

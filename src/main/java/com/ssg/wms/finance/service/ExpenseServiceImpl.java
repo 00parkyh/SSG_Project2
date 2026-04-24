@@ -44,14 +44,19 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public Long saveExpense(ExpenseSaveDTO dto) {
-        // 1. DTO를 VO로 변환
-        ExpenseVO expenseVO = modelMapper.map(dto, ExpenseVO.class);
+        ExpenseVO expenseVO = ExpenseVO.builder()
+                .expenseDate(dto.getExpenseDate())
+                .warehouseName(dto.getWarehouseName())
+                .expenseCategory(dto.getCategory())
+                .expenseAmount(dto.getAmount())
+                .expenseDescription(dto.getDescription())
+                .build();
 
         // 2. 먼저 DB에 저장 (ID를 받아오기 위해)
         expenseMapper.save(expenseVO);
 
         // 3. MyBatis가 <insert>의 useGeneratedKeys 덕분에 VO에 채워준 ID를 가져옴
-        Long newId = expenseVO.getId();
+        Long newId = expenseVO.getExpenseID();
 
         // 4. 고유 식별 번호 생성 (예: EXP-251111-00027)
         // 날짜 포맷 (2025-11-11 -> 251111)
@@ -69,9 +74,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public void updateExpense(Long id, ExpenseSaveDTO dto) {
-        ExpenseVO expenseVO = modelMapper.map(dto, ExpenseVO.class);
+        ExpenseVO expenseVO = ExpenseVO.builder()
+                .expenseDate(dto.getExpenseDate())
+                .warehouseName(dto.getWarehouseName())
+                .expenseCategory(dto.getCategory())
+                .expenseAmount(dto.getAmount())
+                .expenseDescription(dto.getDescription())
+                .build();
         ExpenseVO finalVO = expenseVO.toBuilder()
-                .id(id)
+                .expenseID(id)
                 .build();
         expenseMapper.update(finalVO);
     }

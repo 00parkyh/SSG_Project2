@@ -32,9 +32,9 @@ public class WarehouseManagerServiceImpl implements WarehouseManagerService {
 
     /// 창고 이름 중복 확인 구현
     @Override
-    public boolean checkNameDuplication(String name) {
-        log.debug("창고 이름 중복 확인 시작 (Manager): {}", name);
-        return adminManagerMapper.countWarehouseName(name) > 0;
+    public boolean checkNameDuplication(String warehouseName) {
+        log.debug("창고 이름 중복 확인 시작 (Manager): {}", warehouseName);
+        return adminManagerMapper.countWarehouseName(warehouseName) > 0;
     }
 
     ///창고 등록 구현 (Manager)
@@ -43,8 +43,8 @@ public class WarehouseManagerServiceImpl implements WarehouseManagerService {
     public Long saveWarehouse(WarehouseSaveDTO saveDTO) throws Exception {
 
         // 1. 이름 중복 확인
-        if (checkNameDuplication(saveDTO.getName())) {
-            log.warn("등록 실패 (Manager): 이미 존재하는 창고 이름입니다. (이름: {})", saveDTO.getName());
+        if (checkNameDuplication(saveDTO.getWarehouseName())) {
+            log.warn("등록 실패 (Manager): 이미 존재하는 창고 이름입니다. (이름: {})", saveDTO.getWarehouseName());
             throw new IllegalArgumentException("이미 존재하는 창고 이름입니다.");
         }
 

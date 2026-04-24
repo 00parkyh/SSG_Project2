@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -29,9 +29,9 @@
         i.inbound_requested_at,
         m.member_name,
         i.inbound_status
-        FROM inbound i
-        INNER JOIN member m ON i.member_id = m.member_id
-        INNER JOIN partner p ON m.partner_id = p.partner_id
+        FROM Inbound i
+        INNER JOIN Member m ON i.member_id = m.member_id
+        INNER JOIN Partner p ON m.partner_id = p.partner_id
         WHERE 1=1
         <!-- partnerId가 null이 아니고 비어있지 않으면 필터링 -->
         <if test="partnerId != null and partnerId != ''">
@@ -48,7 +48,7 @@
         SELECT
         i.inbound_id,
         i.warehouse_id,
-        w.name AS warehouse_name,
+        w.warehouse_name AS warehouse_name,
         i.member_id,
         m.member_name,
         i.staff_id,
@@ -63,26 +63,26 @@
         i.inbound_requested_at,
         i.inbound_at,
         i.inbound_reject_reason
-        FROM inbound i
-        LEFT JOIN warehouse w ON i.warehouse_id = w.warehouse_id
-        JOIN member m ON i.member_id = m.member_id
-        JOIN partner pt ON m.partner_id = pt.partner_id
-        LEFT JOIN inbound_item ii ON i.inbound_id = ii.inbound_id
-        LEFT JOIN product p ON ii.product_id = p.product_id
-        LEFT JOIN category c ON p.category_cd = c.category_cd
-        LEFT JOIN staff st ON i.staff_id = st.staff_id
+        FROM Inbound i
+        LEFT JOIN Warehouse w ON i.warehouse_id = w.warehouse_id
+        JOIN Member m ON i.member_id = m.member_id
+        JOIN Partner pt ON m.partner_id = pt.partner_id
+        LEFT JOIN InboundItem ii ON i.inbound_id = ii.inbound_id
+        LEFT JOIN Product p ON ii.product_id = p.product_id
+        LEFT JOIN Category c ON p.category_cd = c.category_cd
+        LEFT JOIN Staff st ON i.staff_id = st.staff_id
         WHERE i.inbound_id = #{inboundId}
     </select>
 
     <select id="selectWarehouseName" resultType="InboundWarehouseDTO">
         SELECT
         warehouse_id as warehouseId,
-        name as warehouseName
-        FROM warehouse;
+        warehouse_name as warehouseName
+        FROM Warehouse;
     </select>
 
     <update id="approveInboundStatus">
-        UPDATE inbound SET
+        UPDATE Inbound SET
         inbound_status = 'approved',
         warehouse_id = #{warehouseId},
         inbound_updated_at = NOW(),
@@ -91,7 +91,7 @@
     </update>
 
     <update id="updateInboundStatusRejected" >
-        UPDATE inbound
+        UPDATE Inbound
         SET inbound_status = 'rejected',
         inbound_reject_reason = #{reason},
         inbound_updated_at = NOW()

@@ -185,20 +185,20 @@
 
         list.forEach(item => {
             // 금액 포맷
-            let amtInManWon = Math.floor(item.amount / 10000).toLocaleString('ko-KR');
+            let amtInManWon = Math.floor(item.salesAmount / 10000).toLocaleString('ko-KR');
 
             // 날짜 포맷: "2025,11,10" -> "2025-11-10"
             let formattedDate = item.salesDate ? String(item.salesDate).replace(/,/g, '-') : '-';
 
             // DTO의 salesCode 필드를 사용 (Service에서 생성한 값)
-            tbody.append(`<tr style="cursor:pointer" onclick="openDetailModal(\${item.id})">
+            tbody.append(`<tr style="cursor:pointer" onclick="openDetailModal(\${item.salesID})">
                 <td>\${item.salesCode}</td>
                 <td>\${formattedDate}</td>
                 <td><strong>\${item.clientName}</strong></td>
                 <td>\${item.warehouseName}</td>
-                <td><span class="text-success fw-bold">\${item.category}</span></td>
+                <td><span class="text-success fw-bold">\${item.salesCategory}</span></td>
                 <td class="text-end fw-bold text-success">\${amtInManWon}</td>
-                <td>\${item.description || '-'}</td>
+                <td>\${item.salesDescription || '-'}</td>
             </tr>`);
         });
     }
@@ -221,7 +221,7 @@
 
     function openDetailModal(id) {
         $.get(API_BASE_URL + '/' + id, function (data) {
-            $('#salesId').val(data.id);
+            $('#salesId').val(data.salesID);
 
             // [수정] 날짜 포맷팅 적용 (쉼표를 하이픈으로)
             $('#modalSalesDate').val(data.salesDate ? String(data.salesDate).replace(/,/g, '-') : '');
@@ -230,9 +230,9 @@
             $('#modalClientName').val(data.clientName);
             $('#modalWarehouseName').val(data.warehouseName);
 
-            $('#modalCategory').val(data.category);
-            $('#modalAmount').val(data.amount);
-            $('#modalDescription').val(data.description);
+            $('#modalCategory').val(data.salesCategory);
+            $('#modalAmount').val(data.salesAmount);
+            $('#modalDescription').val(data.salesDescription);
             $('#modalTitle').text('매출 상세 정보');
             $('#btnSave').hide();
             $('#btnUpdate, #btnDelete').show();

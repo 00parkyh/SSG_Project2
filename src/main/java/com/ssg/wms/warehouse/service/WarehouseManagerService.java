@@ -10,7 +10,7 @@ public interface WarehouseManagerService {
     Long saveWarehouse(WarehouseSaveDTO saveDTO) throws Exception;
 
 
-    boolean checkNameDuplication(String name);
+    boolean checkNameDuplication(String warehouseName);
 
 
     void updateWarehouse(Long id, WarehouseUpdateDTO updateDTO) throws Exception;

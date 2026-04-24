@@ -89,8 +89,8 @@ public class InquiryController {
     // 문의 삭제
     @PostMapping("/{id}/delete")
     public String postDelete(@PathVariable("id") Long id,
-                             @RequestParam String password) {
-        inquiryService.deleteInquiry(id, password);
+                             @RequestParam String inquiryPwd) {
+        inquiryService.deleteInquiry(id, inquiryPwd);
         return "redirect:/inquiries";
     }
 }

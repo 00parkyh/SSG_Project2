@@ -19,7 +19,7 @@ public interface WarehouseAdminMapper {
     int insertLocation(LocationDTO location);
 
     /// 창고 이름 중복 확인
-    int countWarehouseName(@Param("name") String name);
+    int countWarehouseName(@Param("warehouseName") String warehouseName);
 
 
     /// 창고 수정

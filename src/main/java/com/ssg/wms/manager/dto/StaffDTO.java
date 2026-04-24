@@ -20,7 +20,7 @@ public class StaffDTO {
     private String staffPhone;
     private String staffEmail;
     private Role role;
-    private AccountStatus status;
+    private AccountStatus staffStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -10,9 +10,7 @@ public class MemberPageDTO {
   private int startPage; //시작
   private int endPage; //화면에서 마지막 번호
   private boolean prev, next;
-
   private int total;
-
   private int pageNum;
   private int amount;
 

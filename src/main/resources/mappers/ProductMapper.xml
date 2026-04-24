@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -8,7 +8,7 @@
         SELECT
         product_id AS productId,
         product_name AS productName
-        FROM product
+        FROM Product
         WHERE partner_id = #{partnerId}
         AND category_cd = #{categoryCd}
         ORDER BY product_name
@@ -16,7 +16,7 @@
 
     <select id="selectCategory" resultType="com.ssg.wms.product_ehs.dto.CategoryDTO">
         SELECT category_cd, category_name
-        FROM category
+        FROM Category
         ORDER BY category_cd
     </select>
 

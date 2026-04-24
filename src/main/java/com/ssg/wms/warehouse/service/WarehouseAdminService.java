@@ -11,7 +11,7 @@ import java.util.List;
 public interface WarehouseAdminService {
 
     /// 창고 이름 중복 확인
-    boolean checkNameDuplication(String name);
+    boolean checkNameDuplication(String warehouseName);
 
     /// 창고 등록 (Geocoding 구역 등록 포함)
     Long saveWarehouse(WarehouseSaveDTO saveDTO) throws Exception;

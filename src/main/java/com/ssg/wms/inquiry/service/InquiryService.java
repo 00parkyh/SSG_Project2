@@ -9,5 +9,5 @@ public interface InquiryService {
     InquiryDTO getInquiry(Long id);
     Long saveInquiry(InquiryDTO dto);
     void updateInquiry(InquiryDTO dto);
-    void deleteInquiry(Long inquiryId, String password);
+    void deleteInquiry(Long inquiryId, String inquiryPwd);
 }

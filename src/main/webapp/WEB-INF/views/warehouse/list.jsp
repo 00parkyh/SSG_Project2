@@ -144,12 +144,12 @@
             <c:choose>
               <c:when test="${userRole == 'ADMIN'}">
                 <a href="${pageContext.request.contextPath}/admin/warehouses/${warehouse.warehouseId}">
-                    ${warehouse.name}
+                    ${warehouse.warehouseName}
                 </a>
               </c:when>
               <c:otherwise>
                 <a href="${pageContext.request.contextPath}/member/warehouses/${warehouse.warehouseId}">
-                    ${warehouse.name}
+                    ${warehouse.warehouseName}
                 </a>
               </c:otherwise>
             </c:choose>
@@ -235,14 +235,14 @@
         // 2. CustomOverlay로 창고 이름 표시 (마커 위에 바로 보이게 함)
         var overlay = new kakao.maps.CustomOverlay({
           position: position,
-          content: `<div class="marker-label">${wh.name}</div>`,
+          content: `<div class="marker-label">${wh.warehouseName}</div>`,
           map: map,
           yAnchor: 1
         });
 
         // 3. InfoWindow 생성
         var infowindow = new kakao.maps.InfoWindow({
-          content: `<div style="padding:5px; font-weight:bold;">${wh.name}<br/>${wh.address}</div>`
+          content: `<div style="padding:5px; font-weight:bold;">${wh.warehouseName}<br/>${wh.address}</div>`
         });
 
         // 4. 마커 및 오버레이 클릭 시 InfoWindow 열기

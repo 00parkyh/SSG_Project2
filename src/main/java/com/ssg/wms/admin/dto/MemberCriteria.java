@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class MemberCriteria {
 
   private String keyword;        // 이름/아이디 검색
-  private AccountStatus status;  // 상태 (ACTIVE, INACTIVE 등)
+  private AccountStatus memberCriteriaStatus;  // 상태 (ACTIVE, INACTIVE 등)
 
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private LocalDate startDate;   // 생성일 시작

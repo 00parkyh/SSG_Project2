@@ -29,9 +29,9 @@ public class WarehouseAdminServiceImpl implements WarehouseAdminService {
 
     /// 창고 이름 중복 확인 구현
     @Override
-    public boolean checkNameDuplication(String name) {
-        log.debug("창고 이름 중복 확인 시작 (Admin): {}", name);
-        return warehouseAdminMapper.countWarehouseName(name) > 0;
+    public boolean checkNameDuplication(String warehouseName) {
+        log.debug("창고 이름 중복 확인 시작 (Admin): {}", warehouseName);
+        return warehouseAdminMapper.countWarehouseName(warehouseName) > 0;
     }
 
     /// 창고 등록 구현 (Admin)  Geocoding 연동 및 구역 등록
@@ -40,8 +40,8 @@ public class WarehouseAdminServiceImpl implements WarehouseAdminService {
     public Long saveWarehouse(WarehouseSaveDTO saveDTO) throws Exception {
 
         /// 1. 이름 중복 확인
-        if (checkNameDuplication(saveDTO.getName())) {
-            log.warn("등록 실패 (Admin): 이미 존재하는 창고 이름입니다. (이름: {})", saveDTO.getName());
+        if (checkNameDuplication(saveDTO.getWarehouseName())) {
+            log.warn("등록 실패 (Admin): 이미 존재하는 창고 이름입니다. (이름: {})", saveDTO.getWarehouseName());
             throw new IllegalArgumentException("이미 존재하는 창고 이름입니다.");
         }
 
@@ -61,7 +61,7 @@ public class WarehouseAdminServiceImpl implements WarehouseAdminService {
         saveDTO.setLatitude(coords[1]);
 
 
-        log.info(" DTO 데이터 받기 성공. 받은 창고 이름: {}", saveDTO.getName());
+        log.info(" DTO 데이터 받기 성공. 받은 창고 이름: {}", saveDTO.getWarehouseName());
 
         /// 4. 창고 (WAREHOUSE) DB에 저장 (PK가 saveDTO.warehouseId에 채워짐)
         int insertedRows = warehouseAdminMapper.insertWarehouse(saveDTO);

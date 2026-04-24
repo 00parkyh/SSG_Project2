@@ -121,7 +121,7 @@ public class WarehousesManagerController {
         } catch (IllegalArgumentException e) {
 
             log.error("창고 등록 비즈니스 오류 발생: {}", e.getMessage());
-            bindingResult.rejectValue("name", "name.duplicate", e.getMessage()); // 오류를 특정 필드(name)에 연결
+            bindingResult.rejectValue("warehouseName", "warehouseName.duplicate", e.getMessage());
 
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.saveDTO", bindingResult);
             redirectAttributes.addFlashAttribute("saveDTO", saveDTO);
@@ -250,8 +250,8 @@ public class WarehousesManagerController {
 
     @GetMapping("/api/check/name")
     @ResponseBody
-    public Boolean checkNameDuplication(@RequestParam String name) {
-        return warehouseManagerService.checkNameDuplication(name);
+    public Boolean checkNameDuplication(@RequestParam String warehouseName) {
+        return warehouseManagerService.checkNameDuplication(warehouseName);
     }
 
     //2. 매니저 접근 권한 검사 헬퍼 메서드

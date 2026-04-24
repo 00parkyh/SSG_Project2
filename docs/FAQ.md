@@ -1,4 +1,4 @@
-# ❓ Git/GitHub 자주 묻는 질문 (FAQ)
+﻿# ❓ Git/GitHub 자주 묻는 질문 (FAQ)
 
 ---
 

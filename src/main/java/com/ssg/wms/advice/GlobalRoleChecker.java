@@ -16,7 +16,7 @@ public class GlobalRoleChecker {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession(false);
 
-        if (uri.equals("/admin/login")) return;
+        if (request.getServletPath().equals("/admin/login")) return;
 
         // /admin 경로에 접근하는데 ADMIN이 아닌 경우 차단
         if (uri.contains("/admin") || uri.contains("/dashboard")) {

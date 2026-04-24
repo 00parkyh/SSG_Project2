@@ -124,7 +124,7 @@ public class WarehouseAdminController {
 
             // 오류를 BindingResult에 추가  데이터와 함께 리다이렉트하여 폼을 다시 보여줌
             log.error("창고 등록 비즈니스 오류 발생: {}", e.getMessage());
-            bindingResult.rejectValue("name", "name.duplicate", e.getMessage()); // 오류를 특정 필드(name)에 연결
+            bindingResult.rejectValue("warehouseName", "warehouseName.duplicate", e.getMessage());
 
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.saveDTO", bindingResult);
             redirectAttributes.addFlashAttribute("saveDTO", saveDTO);
@@ -253,8 +253,8 @@ public class WarehouseAdminController {
 
     @GetMapping("/api/check/name")
     @ResponseBody
-    public Boolean checkNameDuplication(@RequestParam String name) {
-        return warehouseAdminService.checkNameDuplication(name);
+    public Boolean checkNameDuplication(@RequestParam String warehouseName) {
+        return warehouseAdminService.checkNameDuplication(warehouseName);
     }
 
     //2. 관리자 접근 권한 검사 헬퍼 메서드

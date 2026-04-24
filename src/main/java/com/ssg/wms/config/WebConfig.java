@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
         log.info("addInterceptors 작동");
 
         registry.addInterceptor(new RoleCheckInterceptor("ADMIN"))
-                .addPathPatterns("/admin/**", "/dashboard/**", "/sales/**", "/expense/**");
+                .addPathPatterns("/admin/**", "/dashboard/**", "/sales/**", "/expense/**")
+                .excludePathPatterns("/admin/login");
 
         registry.addInterceptor(new RoleCheckInterceptor("ADMIN", "MANAGER"))
                 .addPathPatterns("/stock/**");

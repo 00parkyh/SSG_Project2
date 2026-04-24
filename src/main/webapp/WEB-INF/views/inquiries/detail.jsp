@@ -436,11 +436,11 @@
             form.appendChild(inquiryIdInput);
 
             // ✅ 비밀번호 파라미터 추가
-            const passwordInput = document.createElement("input");
-            passwordInput.type = "hidden";
-            passwordInput.name = "password";
-            passwordInput.value = password;
-            form.appendChild(passwordInput);
+            const inquiryPwdInput = document.createElement("input");
+            inquiryPwdInput.type = "hidden";
+            inquiryPwdInput.name = "inquiryPwd";
+            inquiryPwdInput.value = password;
+            form.appendChild(inquiryPwdInput);
 
             form.submit();
         }

@@ -52,9 +52,9 @@
                                    value="${loginAdmin.createdAt}" readonly/>
                         </div>
                         <div class="mb-3 col-md-6">
-                            <label for="status" class="form-label">계정상태</label>
-                            <input type="text" class="form-control" id="status" name="status"
-                                   value="${loginAdmin.status}" readonly/>
+                            <label for="staffStatus" class="form-label">계정상태</label>
+                            <input type="text" class="form-control" id="staffStatus" name="staffStatus"
+                                   value="${loginAdmin.staffStatus}" readonly/>
                         </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
 
     window.addEventListener("DOMContentLoaded", () => {
         const roleInput = document.getElementById("role");
-        const statusInput = document.getElementById("status");
+        const statusInput = document.getElementById("staffStatus");
 
         if (roleInput && roleMap[roleInput.value]) {
             roleInput.value = `\${roleMap[roleInput.value]}`;

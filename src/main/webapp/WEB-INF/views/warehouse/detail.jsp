@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>창고 상세 정보: ${detail.name}</title>
+  <title>창고 상세 정보: ${detail.warehouseName}</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8284a9e56dbc80e2ab8f41c23c1bbb0a"></script>
   <style>
@@ -80,7 +80,7 @@
     <h2>창고 기본 정보</h2>
     <table class="info-table">
       <tr><th>창고 ID</th><td>${detail.warehouseId}</td></tr>
-      <tr><th>창고 이름</th><td>${detail.name}</td></tr>
+      <tr><th>창고 이름</th><td>${detail.warehouseName}</td></tr>
       <tr><th>담당자 ID</th><td>${detail.adminId}</td></tr>
       <tr><th>창고 주소</th><td>${detail.address}</td></tr>
       <tr><th>창고 종류</th><td>${detail.warehouseType}</td></tr>
@@ -167,7 +167,7 @@
 
     <h2 style="font-size: 20px; color: #333; margin-top: 0; text-align: center;">**창고 삭제 경고**</h2>
     <p style="text-align: center; color: #666; line-height: 1.5; border-top: 1px dashed #eee; padding-top: 15px;">
-      정말로 **창고 ${detail.name}** (ID: ${detail.warehouseId}) 정보를 삭제하시겠습니까?
+      정말로 **창고 ${detail.warehouseName}** (ID: ${detail.warehouseId}) 정보를 삭제하시겠습니까?
     </p>
     <p style="text-align: center; color: darkred; font-weight: bold; margin-bottom: 25px;">
       이 작업은 되돌릴 수 없으며, 모든 관련 데이터가 영구적으로 삭제됩니다.
@@ -186,7 +186,7 @@
   const detailData = {
     latitude: ${detail.latitude},
     longitude: ${detail.longitude},
-    name: '${detail.name}'
+    warehouseName: '${detail.warehouseName}'
   };
 
   // 지도 초기화

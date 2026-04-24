@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ssg.wms.warehouse.mappers.WarehouseManagerMapper">
 
     <resultMap id="warehouseListResultMap" type="com.ssg.wms.warehouse.dto.WarehouseListDTO">
         <id property="warehouseId" column="warehouse_id"/>
-        <result property="name" column="name"/>
+        <result property="warehouseName" column="warehouse_name"/>
         <result property="warehouseType" column="warehouse_type"/>
         <result property="address" column="address"/>
         <result property="latitude" column="latitude"/>
@@ -17,7 +17,7 @@
     <resultMap id="warehouseDetailResultMap" type="com.ssg.wms.warehouse.dto.WarehouseDetailDTO">
         <id property="warehouseId" column="warehouse_id"/>
         <result property="adminId" column="admin_id"/>
-        <result property="name" column="name"/>
+        <result property="warehouseName" column="warehouse_name"/>
         <result property="warehouseType" column="warehouse_type"/>
         <result property="warehouseCapacity" column="warehouse_capacity"/>
         <result property="warehouseStatus" column="warehouse_status"/>
@@ -30,9 +30,9 @@
 
     <insert id="insertWarehouse" parameterType="com.ssg.wms.warehouse.dto.WarehouseSaveDTO"
             useGeneratedKeys="true" keyProperty="warehouseId">
-        INSERT INTO WAREHOUSE (
+        INSERT INTO Warehouse (
             admin_id,
-            name,
+            warehouse_name,
             warehouse_type,
             warehouse_capacity,
             warehouse_status,
@@ -43,7 +43,7 @@
             latest_update_date
         ) VALUES (
                      #{adminId},
-                     #{name},
+                     #{warehouseName},
                      #{warehouseType},
                      #{warehouseCapacity},
                      #{warehouseStatus},
@@ -56,7 +56,7 @@
     </insert>
 
     <insert id="insertSection" parameterType="com.ssg.wms.warehouse.dto.SectionDTO">
-        INSERT INTO section (
+        INSERT INTO Section (
             warehouse_id,
             section_name,
             section_type,
@@ -72,9 +72,9 @@
     </insert>
 
     <update id="updateWarehouse" parameterType="com.ssg.wms.warehouse.dto.WarehouseUpdateDTO">
-        UPDATE WAREHOUSE
+        UPDATE Warehouse
         SET
-            name = #{name},
+            warehouse_name = #{warehouseName},
             admin_id = #{adminId},
             warehouse_type = #{warehouseType},
             warehouse_capacity = #{warehouseCapacity},
@@ -85,18 +85,18 @@
     </update>
 
     <delete id="deleteWarehouse" parameterType="long">
-        DELETE FROM WAREHOUSE
+        DELETE FROM Warehouse
         WHERE warehouse_id = #{id}
     </delete>
 
     <select id="countWarehouseName" parameterType="string" resultType="int">
         SELECT COUNT(warehouse_id)
-        FROM WAREHOUSE
-        WHERE name = #{name}
+        FROM Warehouse
+        WHERE warehouse_name = #{warehouseName}
     </select>
 
     <update id="updateWarehouseStatus" parameterType="map">
-        UPDATE WAREHOUSE
+        UPDATE Warehouse
         SET
             warehouse_status = #{newStatus},
             latest_update_date = NOW()
@@ -106,18 +106,17 @@
     <select id="selectWarehouses" parameterType="com.ssg.wms.warehouse.dto.WarehouseSearchDTO" resultMap="warehouseListResultMap">
         SELECT
         warehouse_id,
-        name,
+        warehouse_name,
         warehouse_type,
         address,
         latitude,
         longitude,
         warehouse_status,
         latest_update_date
-        FROM
-        WAREHOUSE
+        FROM Warehouse
         WHERE 1=1
-        <if test="name != null and name != ''">
-            AND name LIKE CONCAT('%', #{name}, '%')
+        <if test="warehouseName != null and warehouseName != ''">
+            AND warehouse_name LIKE CONCAT('%', #{warehouseName}, '%')
         </if>
         <if test="warehouseType != null and warehouseType != ''">
             AND warehouse_type = #{warehouseType}
@@ -132,7 +131,7 @@
         SELECT
             w.warehouse_id,
             w.admin_id,
-            w.name,
+            w.warehouse_name,
             w.warehouse_type,
             w.warehouse_capacity,
             w.warehouse_status,
@@ -141,8 +140,7 @@
             w.longitude,
             w.registration_date,
             w.latest_update_date
-        FROM
-            WAREHOUSE w
+        FROM Warehouse w
         WHERE
             w.warehouse_id = #{id}
     </select>
