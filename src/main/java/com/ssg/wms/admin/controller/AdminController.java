@@ -1,13 +1,15 @@
 package com.ssg.wms.admin.controller;
 
 import com.ssg.wms.admin.domain.Staff;
-import com.ssg.wms.member.domain.Member;
 import com.ssg.wms.admin.dto.MemberCriteria;
 import com.ssg.wms.admin.dto.MemberPageDTO;
-import com.ssg.wms.manager.dto.StaffDTO;
 import com.ssg.wms.admin.service.AdminService;
 import com.ssg.wms.common.AccountStatus;
 import com.ssg.wms.common.Role;
+import com.ssg.wms.manager.dto.StaffDTO;
+import com.ssg.wms.member.domain.Member;
+import com.ssg.wms.member.dto.MemberDTO;
+import com.ssg.wms.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -15,7 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -26,17 +34,19 @@ import java.util.List;
 @Log4j2
 public class AdminController {
 
+    private static final String NO_PERMISSION_MESSAGE = "로그인 권한이 없습니다.";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "아이디 혹은 비밀번호가 틀렸습니다.";
+
     private final AdminService adminService;
+    private final MemberService memberService;
 
     @GetMapping("")
     public String getAdminMain() {
-        // 메인 화면
         return "admin/dashboard";
     }
 
     @GetMapping("/login")
     public String getAdminLogin() {
-        // 로그인 화면
         return "admin/login";
     }
 
@@ -46,34 +56,37 @@ public class AdminController {
                                  HttpSession session,
                                  Model model) {
         Staff staff = adminService.loginCheck(loginId, password);
-        if (staff == null) {
-            model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
-            return "login";
+        if (staff != null) {
+            if (staff.getRole() != Role.ADMIN) {
+                model.addAttribute("loginId", loginId);
+                model.addAttribute("alertMessage", NO_PERMISSION_MESSAGE);
+                model.addAttribute("redirectUrl", resolveRedirectUrlByRole(staff.getRole()));
+                return "admin/login";
+            }
+
+            session.setAttribute("loginStaff", staff);
+            session.setAttribute("loginId", loginId);
+            session.setAttribute("role", staff.getRole());
+
+            return "redirect:/admin/dashboard";
         }
 
-        // 세션에 저장
-        session.setAttribute("loginStaff", staff);
-        session.setAttribute("loginId", loginId);
-        session.setAttribute("role", staff.getRole());
-
-        return "redirect:/admin/dashboard";
+        prepareLoginFailure(loginId, password, model);
+        return "admin/login";
     }
 
     @Transactional
     @GetMapping("/mypage")
     public String getUserInfo(HttpSession session, Model model) {
-        // 마이페이지 조회
         String id = (String) session.getAttribute("loginId");
         if (id == null) {
-            return "redirect:/login"; // 세션 없으면 로그인 페이지로
+            return "redirect:/login";
         }
 
-        // 로그인 ID -> 고유 ID 구하고 직원 정보 얻음
         long staffId = adminService.findStaffIdByStaffLoginId(id);
         StaffDTO staffDTO = adminService.getStaffDetails(staffId);
         log.info("staffDTO: " + staffDTO);
 
-        // 세션에 저장하고 모델로 넘김
         session.setAttribute("loginAdmin", staffDTO);
         model.addAttribute("loginAdmin", staffDTO);
         log.info("(중요) 세션 로그: " + session.getAttribute("role"));
@@ -95,18 +108,15 @@ public class AdminController {
         model.addAttribute("totalCount", total);
         model.addAttribute("criteria", criteria);
 
-        // 고객 목록 조회
         return "admin/members";
     }
 
     @GetMapping("/members/{memberId}")
     @ResponseBody
     public Member getMembersDetail(@PathVariable long memberId) {
-        // 고객 상세 조회
         return adminService.getMemberDetails(memberId);
     }
 
-    // 승인 처리
     @PostMapping("/members/{memberId}/approve")
     @ResponseBody
     public ResponseEntity<?> approveMember(@PathVariable long memberId) {
@@ -115,17 +125,15 @@ public class AdminController {
             adminService.changeMemberStatus(memberId, AccountStatus.ACTIVE);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("승인 처리 중 오류 발생: memberId={}", memberId, e);
+            log.error("승인 처리 중 에러 발생: memberId={}", memberId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("승인 처리 실패: " + e.getMessage());
         }
     }
 
-    // 거절 처리
     @PostMapping("/members/{memberId}/reject")
     @ResponseBody
     public ResponseEntity<?> rejectMember(@PathVariable long memberId) {
-        // 거절 로직 처리
         log.info("Rejecting member " + memberId);
         adminService.changeMemberStatus(memberId, AccountStatus.REJECTED);
         return ResponseEntity.ok().build();
@@ -133,8 +141,37 @@ public class AdminController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // 세션 무효화
-        return "redirect:/login"; // 로그인 페이지로 리다이렉트
+        session.invalidate();
+        return "redirect:/login";
     }
 
+    private void prepareLoginFailure(String loginId, String password, Model model) {
+        MemberDTO member = memberService.loginCheck(loginId, password);
+        model.addAttribute("loginId", loginId);
+
+        if (member != null) {
+            model.addAttribute("alertMessage", NO_PERMISSION_MESSAGE);
+            model.addAttribute("redirectUrl", resolveRedirectUrlByRole(member.getRole()));
+            return;
+        }
+
+        model.addAttribute("alertMessage", INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    private String resolveRedirectUrlByRole(Role role) {
+        if (role == null) {
+            return "/login";
+        }
+
+        switch (role) {
+            case ADMIN:
+                return "/admin/login";
+            case MEMBER:
+                return "/member/login";
+            case MANAGER:
+                return "/warehousemanager/login";
+            default:
+                return "/login";
+        }
+    }
 }

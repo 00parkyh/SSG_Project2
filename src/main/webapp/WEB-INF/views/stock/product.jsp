@@ -4,7 +4,14 @@
 <c:set var="pageActive" value="product_list" scope="request"/>
 
 <%-- HEADER 포함 --%>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <div class="container-xxl flex-grow-1 container-p-y">
 <div class="card">
@@ -136,7 +143,14 @@
 </div>
 
 <%-- FOOTER 포함 --%>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <script>
     /**

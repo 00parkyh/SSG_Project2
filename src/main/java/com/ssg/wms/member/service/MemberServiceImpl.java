@@ -43,9 +43,12 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberDTO loginCheck(String loginId, String password) {
-        MemberDTO member = memberMapper.findByLoginIdAndPw(loginId, password);
+        return memberMapper.findByLoginIdAndPw(loginId, password);
+    }
 
-        return member; // 로그인 성공
+    @Override
+    public MemberDTO findByLoginId(String loginId) {
+        return memberMapper.findByLoginId(loginId);
     }
 
     @Override
@@ -61,6 +64,4 @@ public class MemberServiceImpl implements MemberService {
         log.info("Partner Id: " + partnerId);
         return partnerId;
     }
-
-
 }

@@ -2,7 +2,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="pageActive" value="stock_list" scope="request"/>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card">
@@ -116,7 +123,14 @@
         </div>
     </div>
 </div>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <script>
 

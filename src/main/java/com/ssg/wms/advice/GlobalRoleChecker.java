@@ -11,24 +11,25 @@ import java.io.IOException;
 
 @ControllerAdvice
 public class GlobalRoleChecker {
+
     @ModelAttribute
     public void checkAdminAccess(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession(false);
 
-        if (request.getServletPath().equals("/admin/login")) return;
+        if (request.getServletPath().equals("/admin/login")) {
+            return;
+        }
 
-        // /admin 경로에 접근하는데 ADMIN이 아닌 경우 차단
         if (uri.contains("/admin") || uri.contains("/dashboard")) {
-            Role role = (Role) session.getAttribute("role");
+            Role role = getSessionRole(session);
 
-            if (session == null || session.getAttribute("role") == null) {
+            if (role == null) {
                 response.sendRedirect("/login");
             } else if (role != Role.ADMIN) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "관리자만 접근 가능합니다.");
             }
         }
-
     }
 
     @ModelAttribute
@@ -36,12 +37,14 @@ public class GlobalRoleChecker {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession(false);
 
-        if (uri.equals("/warehousemanager/login")) return;
+        if (isManagerLoginRequest(request)) {
+            return;
+        }
 
         if (uri.startsWith("/warehousemanager")) {
-            Role role = (Role) session.getAttribute("role");
+            Role role = getSessionRole(session);
 
-            if (session == null || session.getAttribute("role") == null) {
+            if (role == null) {
                 response.sendRedirect("/login");
             } else if (role != Role.MANAGER) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "창고관리자 전용 페이지입니다.");
@@ -54,16 +57,34 @@ public class GlobalRoleChecker {
         String uri = request.getRequestURI();
         HttpSession session = request.getSession(false);
 
-        if ((uri.equals("/member/login")) || (uri.equals("/member/register"))) return;
+        if (uri.equals("/member/login") || uri.equals("/member/register")) {
+            return;
+        }
 
         if (uri.startsWith("/member")) {
-            Role role = (Role) session.getAttribute("role");
+            Role role = getSessionRole(session);
 
-            if (session == null || session.getAttribute("role") == null) {
+            if (role == null) {
                 response.sendRedirect("/login");
             } else if (role != Role.MEMBER) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "회원 전용 페이지입니다.");
             }
         }
+    }
+
+    private Role getSessionRole(HttpSession session) {
+        if (session == null) {
+            return null;
+        }
+
+        return (Role) session.getAttribute("role");
+    }
+
+    private boolean isManagerLoginRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+
+        return uri.equals("/warehousemanager/login")
+                || (uri.equals("/warehousemanager") && "POST".equalsIgnoreCase(method));
     }
 }

@@ -108,6 +108,12 @@
         WHERE member_id = #{memberId}
     </update>
 
+    <select id="findByLoginId" parameterType="String" resultType="com.ssg.wms.admin.domain.Staff">
+        SELECT *
+        FROM Staff
+        WHERE staff_login_id = #{loginId}
+    </select>
+
     <!--  로그인ID + PW로 직원 정보 얻기  -->
     <select id="findByLoginIdAndPw" parameterType="String" resultType="com.ssg.wms.admin.domain.Staff">
         SELECT * FROM Staff WHERE staff_login_id = #{loginId}

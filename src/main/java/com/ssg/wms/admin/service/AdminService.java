@@ -1,11 +1,10 @@
 package com.ssg.wms.admin.service;
 
 import com.ssg.wms.admin.domain.Staff;
-import com.ssg.wms.member.domain.Member;
 import com.ssg.wms.admin.dto.MemberCriteria;
-import com.ssg.wms.manager.dto.StaffDTO;
 import com.ssg.wms.common.AccountStatus;
-import com.ssg.wms.member.dto.MemberDTO;
+import com.ssg.wms.manager.dto.StaffDTO;
+import com.ssg.wms.member.domain.Member;
 
 import java.util.List;
 
@@ -17,5 +16,5 @@ public interface AdminService {
     int getMemberTotalCount(MemberCriteria cri);
     void changeMemberStatus(long memberId, AccountStatus status);
     Staff loginCheck(String loginId, String password);
-
+    Staff findByLoginId(String loginId);
 }

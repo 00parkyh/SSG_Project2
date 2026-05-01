@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface MemberMapper {
     MemberDTO findByLoginIdAndPw(@Param(value = "loginId") String loginId, @Param(value = "password") String password);
+    MemberDTO findByLoginId(@Param(value = "loginId") String loginId);
     MemberDTO getMemberDetails(long memberId);
     long findMemberIdByMemberLoginId(String memberLoginId);
     void insertMember(MemberDTO memberDTO);
