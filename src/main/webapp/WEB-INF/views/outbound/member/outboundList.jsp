@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<c:set var="pageActive" value="outbound_list" scope="request"/>
 <jsp:include page="/WEB-INF/views/member/member-header.jsp" />
 
 <div class="content-wrapper">

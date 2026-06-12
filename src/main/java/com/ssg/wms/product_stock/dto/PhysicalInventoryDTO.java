@@ -11,13 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PhysicalInventoryDTO {
     private int piId;
+    private String inventoryBatchId;
     private String piDate;
     private String productId;
     private String piState;
-    private int calculatedQuantity; // 전산 수량 (pid_quantity)
-    private Integer realQuantity;    // 실제 수량 (real_quantity, NULL 허용)
-    private Integer differentQuantity; // 차이 수량 (different_quantity, NULL 허용)
+    private int calculatedQuantity; // Snapshot quantity (pid_quantity)
+    private Integer realQuantity; // Actual quantity (real_quantity, nullable)
+    private Integer differentQuantity; // Difference quantity (different_quantity, nullable)
     private String warehouseName;
     private String sectionName;
-    private String adjustmentStatus; // 조정 여부 (update_state)
+    private String adjustmentStatus; // Adjustment status (update_state)
 }

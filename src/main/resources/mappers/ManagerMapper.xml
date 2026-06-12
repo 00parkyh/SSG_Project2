@@ -20,7 +20,7 @@
     </select>
 
     <!-- 로그인 id로 직원 id 조회 -->
-    <select id="findManagerIdByManagerLoginId" resultType="long">
+    <select id="findStaffIdByStaffLoginId" resultType="long">
         SELECT staff_id
         FROM Staff
         WHERE staff_login_id = #{staffLoginId}
@@ -33,6 +33,20 @@
         WHERE staff_id = #{staffId}
         AND role = 'MANAGER'
     </update>
+
+    <select id="findByLoginId" parameterType="String" resultType="com.ssg.wms.manager.dto.StaffDTO">
+        SELECT staff_id,
+               staff_login_id,
+               staff_name,
+               staff_phone,
+               staff_email,
+               role,
+               status AS staffStatus,
+               created_at,
+               updated_at
+        FROM Staff
+        WHERE staff_login_id = #{loginId}
+    </select>
 
     <!--  로그인ID + PW로 직원 정보 얻기  -->
     <select id="findByLoginIdAndPw" parameterType="String" resultType="com.ssg.wms.manager.dto.StaffDTO">
@@ -48,6 +62,7 @@
         FROM Staff
         WHERE staff_login_id = #{loginId}
         AND staff_pw = #{password}
+        AND role = 'MANAGER'
     </select>
 
 </mapper>

@@ -136,6 +136,7 @@
     <select id="getOutboundRequestItems" resultType="com.ssg.wms.outbound.domain.dto.OutboundItemDTO">
         SELECT
         si.outbound_item_id AS outboundItemId,
+        si.product_id AS productId,
         p.product_name AS productName,
         c.category_name AS categoryName,
         si.outbound_quantity AS outbound_quantity

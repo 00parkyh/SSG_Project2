@@ -53,6 +53,13 @@
         AND member_pw = #{password}
     </select>
 
+    <select id="findByLoginId" parameterType="String" resultType="com.ssg.wms.member.dto.MemberDTO">
+        SELECT member_id, member_login_id, member_name, member_phone, member_email,
+               created_at, updated_at, status AS memberStatus, role, business_number, partner_id
+        FROM Member
+        WHERE member_login_id = #{loginId}
+    </select>
+
     <!--  고객의 partnerId로 partnerName 얻기  -->
     <select id="getPartnerName" resultType="String">
         SELECT p.partner_name

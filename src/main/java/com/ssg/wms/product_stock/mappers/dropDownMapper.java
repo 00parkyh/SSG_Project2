@@ -12,5 +12,6 @@ public interface dropDownMapper {
     List<DropdownDTO> brandDropDown();
     List<DropdownDTO> warehouseDropDown();
     List<DropdownDTO> sectionDropDown();
+    List<DropdownDTO> sectionDropDownByWarehouseId(Long warehouseId);
 }
 

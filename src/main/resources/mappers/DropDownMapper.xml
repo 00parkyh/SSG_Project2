@@ -19,6 +19,13 @@
         select section_id as id, section_name as name FROM Section order by section_name
     </select>
 
+    <select id="sectionDropDownByWarehouseId" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
+        SELECT section_id AS id, section_name AS name
+        FROM Section
+        WHERE warehouse_id = #{warehouseId}
+        ORDER BY section_name
+    </select>
+
     <select id="warehouseDropDown" resultType="com.ssg.wms.product_stock.dto.DropdownDTO">
         SELECT DISTINCT w.warehouse_id AS id, w.warehouse_name AS name FROM Warehouse w JOIN ProductStock ps ON w.warehouse_id = ps.warehouse_id WHERE ps.quantity > 0 ORDER BY w.warehouse_name
     </select>

@@ -17,6 +17,7 @@
     <!-- 출고지시 상세 매핑 -->
     <resultMap id="ShipmentOrderDetailMap" type="com.ssg.wms.outbound.domain.dto.OutboundOrderDTO">
         <id property="approvedOrderID" column="approved_order_id"/>
+        <result property="outboundRequestID" column="outbound_request_id"/>
         <result property="dispatchId" column="dispatch_id"/>
         <result property="carId" column="car_id"/>
         <result property="carType" column="car_type"/>

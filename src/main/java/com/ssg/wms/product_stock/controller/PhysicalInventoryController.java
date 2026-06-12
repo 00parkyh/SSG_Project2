@@ -1,7 +1,15 @@
 package com.ssg.wms.product_stock.controller;
 
+import com.ssg.wms.admin.domain.Staff;
+import com.ssg.wms.common.AdjustmentStatus;
 import com.ssg.wms.manager.dto.StaffDTO;
-import com.ssg.wms.product_stock.dto.*;
+import com.ssg.wms.product_stock.dto.DropdownDTO;
+import com.ssg.wms.product_stock.dto.PageRequestDTO;
+import com.ssg.wms.product_stock.dto.PageResponseDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryBatchUpdateDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryRequest;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryUpdateDTO;
 import com.ssg.wms.product_stock.mappers.dropDownMapper;
 import com.ssg.wms.product_stock.service.PhysicalInventoryService;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +18,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 
 @Controller
 @RequestMapping("/physical-inventory")
@@ -25,25 +37,43 @@ import java.util.Map;
 public class PhysicalInventoryController {
 
     private final PhysicalInventoryService physicalInventoryService;
-    private final dropDownMapper dropDownMapper; // 드롭다운 목록 제공용 매퍼
+    private final dropDownMapper dropDownMapper;
 
     @GetMapping
     public String physicalInventoryPage(Model model, HttpSession session) {
+        populateCurrentStaff(model, session);
 
+        List<DropdownDTO> warehouseList = dropDownMapper.warehouseDropDown();
+        List<DropdownDTO> sectionList = Collections.emptyList();
+        model.addAttribute("warehouseList", warehouseList);
+        model.addAttribute("sectionList", sectionList);
+        model.addAttribute("adjustmentStatuses", AdjustmentStatus.selectableValues());
+        model.addAttribute("defaultAdjustmentStatus", AdjustmentStatus.defaultStatus().getDbValue());
+
+        return "stock/physical-inventory";
+    }
+
+    private void populateCurrentStaff(Model model, HttpSession session) {
+        StaffDTO loginManager = (StaffDTO) session.getAttribute("loginManager");
         StaffDTO loginAdmin = (StaffDTO) session.getAttribute("loginAdmin");
+        Staff loginStaff = (Staff) session.getAttribute("loginStaff");
+
+        if (loginManager != null) {
+            model.addAttribute("currentStaffId", loginManager.getStaffId());
+            model.addAttribute("currentStaffName", loginManager.getStaffName());
+            return;
+        }
 
         if (loginAdmin != null) {
-            model.addAttribute("loginAdmin", loginAdmin);
-            log.info("Physical Inventory Page - 로그인한 담당자: " + loginAdmin.getStaffName());
-        } else {
-            log.warn("Physical Inventory Page - 세션에 로그인한 관리자 정보(loginAdmin)가 없습니다.");
+            model.addAttribute("currentStaffId", loginAdmin.getStaffId());
+            model.addAttribute("currentStaffName", loginAdmin.getStaffName());
+            return;
         }
-            List<DropdownDTO> warehouseList = dropDownMapper.warehouseDropDown();
-            List<DropdownDTO> sectionList = dropDownMapper.sectionDropDown();
-            model.addAttribute("warehouseList", warehouseList);
-            model.addAttribute("sectionList", sectionList);
 
-        return "stock/physical-inventory"; // JSP 경로
+        if (loginStaff != null) {
+            model.addAttribute("currentStaffId", loginStaff.getStaffId());
+            model.addAttribute("currentStaffName", loginStaff.getStaffName());
+        }
     }
 
     @GetMapping("/list")
@@ -52,13 +82,19 @@ public class PhysicalInventoryController {
         return physicalInventoryService.getPhysicalInventoryList(pageRequestDTO);
     }
 
-    @GetMapping("/search") // AJAX 리스트 조회
+    @GetMapping("/search")
     @ResponseBody
     public PageResponseDTO<PhysicalInventoryDTO> searchList(PageRequestDTO pageRequestDTO) {
         return physicalInventoryService.getPhysicalInventoryList(pageRequestDTO);
     }
 
-    @PostMapping("/register") // 실사 등록
+    @GetMapping("/detail")
+    @ResponseBody
+    public List<PhysicalInventoryDTO> getPhysicalInventoryDetail(@RequestParam String inventoryBatchId) {
+        return physicalInventoryService.getPhysicalInventoryDetailList(inventoryBatchId);
+    }
+
+    @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerPhysicalInventory(@RequestBody PhysicalInventoryRequest request) {
         try {
             int registeredCount = physicalInventoryService.registerPhysicalInventory(request);
@@ -67,20 +103,37 @@ public class PhysicalInventoryController {
                     "count", registeredCount
             ));
         } catch (IllegalArgumentException e) {
-            log.error("실사 등록 실패:", e.getMessage());
+            log.error("Physical inventory registration failed: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    @PostMapping("/update") // 실제 수량 수정 및 조정
+    @PostMapping("/update")
     public ResponseEntity<Map<String, String>> updatePhysicalInventory(@RequestBody PhysicalInventoryUpdateDTO updateDTO) {
         try {
             physicalInventoryService.updatePhysicalInventory(updateDTO);
-            String action = "조정 완료".equals(updateDTO.getUpdateState()) ? "재고 조정 및 완료" : "저장 예약";
+            AdjustmentStatus adjustmentStatus = updateDTO.getUpdateState() == null
+                    ? null
+                    : AdjustmentStatus.fromDbValue(updateDTO.getUpdateState());
+            String action = adjustmentStatus == AdjustmentStatus.COMPLETED ? "재고 조정 및 완료" : "저장";
             return ResponseEntity.ok(Map.of("message", action + " 처리 성공"));
         } catch (Exception e) {
-            log.error("실사 업데이트 실패:", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "처리 실패: " + e.getMessage()));
+            log.error("Physical inventory update failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "처리 실패: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/update-batch")
+    public ResponseEntity<Map<String, String>> updatePhysicalInventoryBatch(@RequestBody PhysicalInventoryBatchUpdateDTO updateDTO) {
+        try {
+            physicalInventoryService.updatePhysicalInventoryBatch(updateDTO);
+            String action = "완료".equals(updateDTO.getPiState()) ? "실사 상세 및 상태" : "실사 상태";
+            return ResponseEntity.ok(Map.of("message", action + " 저장 성공"));
+        } catch (Exception e) {
+            log.error("Physical inventory batch update failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "처리 실패: " + e.getMessage()));
         }
     }
 }

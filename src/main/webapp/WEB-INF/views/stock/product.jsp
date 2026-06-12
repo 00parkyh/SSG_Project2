@@ -1,10 +1,17 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:set var="pageActive" value="product_list" scope="request"/>
+<c:set var="pageActive" value="${sessionScope.role == 'ADMIN' ? 'stock_product_list' : 'product_list'}" scope="request"/>
 
 <%-- HEADER 포함 --%>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <div class="container-xxl flex-grow-1 container-p-y">
 <div class="card">
@@ -60,7 +67,7 @@
                 <div class="col-md-4">
                     <div>
                         <label class="form-label">섹션 이름</label>
-                        <select id="sectionName" name="sectionId" class="form-select">
+                        <select id="sectionName" name="sectionId" class="form-select" disabled>
                             <option value="">선택</option>
                             <c:forEach var="item" items="${sectionList}">
                                 <option value="${item.id}">${item.name}</option>
@@ -136,12 +143,69 @@
 </div>
 
 <%-- FOOTER 포함 --%>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role == 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:otherwise>
+</c:choose>
 
 <script>
     /**
      * 드롭다운 선택 값을 수집하여 쿼리스트링을 생성
      */
+    function resetSectionOptions(placeholder) {
+        const sectionSelect = document.getElementById('sectionName');
+        sectionSelect.innerHTML = '<option value="">' + placeholder + '</option>';
+        sectionSelect.disabled = true;
+    }
+
+    function populateSectionOptions(sectionList) {
+        const sectionSelect = document.getElementById('sectionName');
+        sectionSelect.innerHTML = '<option value="">선택</option>';
+
+        sectionList.forEach(function (item) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            sectionSelect.appendChild(option);
+        });
+
+        sectionSelect.disabled = false;
+    }
+
+    function loadSectionsByWarehouse(warehouseId) {
+        if (!warehouseId) {
+            resetSectionOptions('창고를 먼저 선택해주세요');
+            return Promise.resolve();
+        }
+
+        resetSectionOptions('섹션 정보를 불러오는 중입니다...');
+
+        return fetch('/stock/sections?warehouseId=' + encodeURIComponent(warehouseId))
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+
+                return response.json();
+            })
+            .then(function (sectionList) {
+                if (!sectionList || sectionList.length === 0) {
+                    resetSectionOptions('선택 가능한 섹션이 없습니다');
+                    return;
+                }
+
+                populateSectionOptions(sectionList);
+            })
+            .catch(function (error) {
+                console.error('섹션 목록 조회 실패:', error);
+                resetSectionOptions('섹션 목록 조회 실패');
+            });
+    }
+
     function getSearchParams(page) {
         // null 대신 빈 문자열을 허용하여 URLSearchParams가 값이 없는 파라미터를 생략하도록 합니다.
         const productId   = document.querySelector('input[name="productId"]').value;
@@ -290,6 +354,19 @@
     // 💡 추가된 코드: 페이지 로드 완료 시 초기 재고 목록을 가져오기 위해 searchProduct(1) 호출
     document.addEventListener('DOMContentLoaded', function() {
         console.log("페이지 로드 완료 이벤트 발생, 초기 검색 시작.");
+        const warehouseSelect = document.getElementById('warehouseName');
+        const productSearchForm = document.getElementById('ProductSearchForm');
+
+        warehouseSelect.addEventListener('change', function () {
+            loadSectionsByWarehouse(this.value);
+        });
+
+        productSearchForm.addEventListener('reset', function () {
+            window.setTimeout(function () {
+                resetSectionOptions('창고를 먼저 선택해주세요');
+            }, 0);
+        });
+
         searchProduct(1);
     });
 </script>

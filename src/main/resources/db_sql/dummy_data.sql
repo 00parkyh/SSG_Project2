@@ -503,6 +503,7 @@ VALUES
 -- 21. PhysicalInventory
 -- ===========================
 INSERT INTO PhysicalInventory (
+    inventory_batch_id,
     ps_id,
     pi_date,
     pi_state,
@@ -512,6 +513,7 @@ INSERT INTO PhysicalInventory (
     update_state
 )
 SELECT
+    UUID(),
     ps.ps_id,
     plan.pi_date,
     plan.pi_state,

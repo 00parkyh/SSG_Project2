@@ -121,20 +121,20 @@
                     <span class="menu-header-text">Admin Menu</span>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${pageActive == 'admin_members' ? 'active' : ''}">
                     <a href="${pageContext.request.contextPath}/admin/members" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-user-check"></i>
                         <div data-i18n="MemberApproval">고객 관리</div>
                     </a>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${pageActive == 'admin_inbound' ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-down-arrow-circle"></i>
                         <div data-i18n="Inbound">입고 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'admin_inbound' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/inbound/admin/list" class="menu-link">
                                 <div data-i18n="InboundList">입고 요청 조회/승인</div>
                             </a>
@@ -142,13 +142,13 @@
                     </ul>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${pageActive == 'admin_outbound' ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-up-arrow-circle"></i>
                         <div data-i18n="Outbound">출고 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'admin_outbound' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/admin/outbound" class="menu-link">
                                 <div data-i18n="Outbound List">출고지시서 조회/승인</div>
                             </a>
@@ -156,13 +156,13 @@
                     </ul>
                 </li>
 
-                <li class="menu-item ${(pageActive == 'stock_list' || pageActive == 'physical_inventory' || pageActive == 'stock_product_list') ? 'active open' : ''}">
+                <li class="menu-item ${(pageActive == 'stock_list' || pageActive == 'stock_detail' || pageActive == 'physical_inventory' || pageActive == 'stock_product_list' || pageActive == 'product_list') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Stock">재고 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item ${pageActive == 'stock_list' ? 'active' : ''}">
+                        <li class="menu-item ${(pageActive == 'stock_list' || pageActive == 'stock_detail') ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/stock/list" class="menu-link">
                                 <div data-i18n="Stock List">재고 조회</div>
                             </a>
@@ -172,7 +172,7 @@
                                 <div data-i18n="Stock Inspection">재고 실사</div>
                             </a>
                         </li>
-                        <li class="menu-item ${pageActive == 'stock_product_list' ? 'active' : ''}">
+                        <li class="menu-item ${(pageActive == 'stock_product_list' || pageActive == 'product_list') ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/productList/plist" class="menu-link">
                                 <div data-i18n="Product Status">품목 현황</div>
                             </a>
@@ -199,37 +199,37 @@
                     </ul>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'warehouse_register' || pageActive == 'warehouse_list' || pageActive == 'warehouse_location' || pageActive == 'warehouse_detail' || pageActive == 'warehouse_modify') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-buildings"></i>
                         <div data-i18n="Warehouse">창고 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'warehouse_register' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/admin/warehouses/register" class="menu-link">
                                 <div data-i18n="WarehouseRegister">창고 등록</div>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item ${(pageActive == 'warehouse_list' || pageActive == 'warehouse_detail' || pageActive == 'warehouse_modify') ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/admin/warehouses" class="menu-link">
                                 <div data-i18n="WarehouseList">창고 목록 조회/수정</div>
                             </a>
                         </li>
-                        <li class="menu-item">
-                            <a href="#" class="menu-link">
+                        <li class="menu-item ${pageActive == 'warehouse_location' ? 'active' : ''}">
+                            <a href="${pageContext.request.contextPath}/admin/warehouses/location" class="menu-link">
                                 <div data-i18n="WarehouseLocation">창고 위치 조회</div>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${pageActive == 'partner_list' ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-store-alt"></i>
                         <div data-i18n="Client">거래처 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'partner_list' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/partner" class="menu-link">
                                 <div data-i18n="ClientList">거래처 조회</div>
                             </a>
@@ -241,18 +241,18 @@
                     <span class="menu-header-text">Community</span>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'announcements' || pageActive == 'inquiries') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-support"></i>
                         <div data-i18n="Support">고객센터</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'announcements' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/announcements" class="menu-link">
                                 <div data-i18n="Notice">공지사항</div>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'inquiries' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/inquiries" class="menu-link">
                                 <div data-i18n="QnA">문의사항</div>
                             </a>
@@ -315,7 +315,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/logout">
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/logout">
                                         <i class="bx bx-power-off me-2"></i>
                                         <span class="align-middle">Log Out</span>
                                     </a>

@@ -1,50 +1,55 @@
 package com.ssg.wms.product_stock.service;
 
-import com.ssg.wms.product_stock.dto.*;
+import com.ssg.wms.common.AdjustmentStatus;
+import com.ssg.wms.product_stock.dto.PageRequestDTO;
+import com.ssg.wms.product_stock.dto.PageResponseDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryBatchUpdateDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryBatchUpdateItemDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryDTO;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryRequest;
+import com.ssg.wms.product_stock.dto.PhysicalInventoryUpdateDTO;
+import com.ssg.wms.product_stock.dto.StockSnapshotDTO;
 import com.ssg.wms.product_stock.mappers.PhysicalInventoryMapper;
-import com.ssg.wms.product_stock.mappers.ProductStockMapper;
-import com.ssg.wms.product_stock.mappers.dropDownMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class PhysicalInventoryServiceImpl implements PhysicalInventoryService {
 
+    private static final String COMPLETED_STATE = "완료";
+
     private final PhysicalInventoryMapper physicalInventoryMapper;
 
     @Override
     public int registerPhysicalInventory(PhysicalInventoryRequest request) {
-        // 1. 해당 섹션의 현재 재고 목록(스냅샷)을 가져옵니다.
         List<StockSnapshotDTO> stocksToAudit = physicalInventoryMapper.selectStocksForPhysicalInventory(
                 request.getWarehouseId(),
                 request.getSectionId()
         );
 
         if (stocksToAudit.isEmpty()) {
-            throw new IllegalArgumentException("선택된 창고/섹션에 현재 재고가 존재하지 않습니다. 실사 등록 불가.");
+            throw new IllegalArgumentException("선택한 창고/섹션에 현재 재고가 존재하지 않습니다. 실사 등록 불가.");
         }
 
-        // 2. 각 재고 항목별로 Physical_Inventory 레코드를 생성합니다.
+        request.setInventoryBatchId(UUID.randomUUID().toString());
+
         for (StockSnapshotDTO stock : stocksToAudit) {
-
-            // 등록 요청 DTO에 스냅샷 데이터 추가
-            request.setPsId(stock.getPsId()); // 대상 재고 ID
-            request.setCalculatedQuantity(stock.getQuantity()); // 전산 수량 스냅샷
-
+            request.setPsId(stock.getPsId());
+            request.setCalculatedQuantity(stock.getQuantity());
             physicalInventoryMapper.insertPhysicalInventory(request);
         }
-        return stocksToAudit.size(); // 등록된 항목 수 반환
+
+        return stocksToAudit.size();
     }
 
     @Override
     public PageResponseDTO<PhysicalInventoryDTO> getPhysicalInventoryList(PageRequestDTO pageRequestDTO) {
-        // ... (리스트 조회 및 페이지네이션 로직) ...
         pageRequestDTO.normalize();
         int total = physicalInventoryMapper.selectPhysicalInventoryTotalCount(pageRequestDTO);
         List<PhysicalInventoryDTO> piList = physicalInventoryMapper.selectPhysicalInventoryList(pageRequestDTO);
@@ -57,36 +62,80 @@ public class PhysicalInventoryServiceImpl implements PhysicalInventoryService {
     }
 
     @Override
+    public List<PhysicalInventoryDTO> getPhysicalInventoryDetailList(String inventoryBatchId) {
+        return physicalInventoryMapper.selectPhysicalInventoryDetailList(inventoryBatchId);
+    }
+
+    @Override
     @Transactional
     public void updatePhysicalInventory(PhysicalInventoryUpdateDTO updateDTO) {
-        // 1. PI 테이블 업데이트 (실제 수량, 차이 수량, 조정 여부 반영)
         physicalInventoryMapper.updatePhysicalInventory(updateDTO);
 
-        // 2. 조정 완료('조정 완료') 상태일 경우 재고 반영 로직 실행
-        if ("조정 완료".equals(updateDTO.getUpdateState())) {
+        if (!COMPLETED_STATE.equals(updateDTO.getPiState())) {
+            return;
+        }
 
-            Long psId = physicalInventoryMapper.getPsIdByPiId(updateDTO.getPiId());
+        if (updateDTO.getRealQuantity() == null || updateDTO.getUpdateState() == null) {
+            throw new IllegalArgumentException("완료 상태에서는 실제 수량과 조정 여부가 필요합니다.");
+        }
 
-            // 업데이트된 PI 정보를 다시 조회하여 차이 수량 계산 (DB에서 계산된 값 재사용)
-            Integer calculatedQuantity = physicalInventoryMapper.getCalculatedQuantityByPiId(updateDTO.getPiId());
-            if (calculatedQuantity == null) {
-                throw new IllegalStateException("해당 실사 ID의 전산 수량(스냅샷)을 찾을 수 없습니다.");
+        adjustStockByItem(updateDTO.getPiId(), updateDTO.getRealQuantity(), updateDTO.getUpdateState());
+    }
+
+    @Override
+    @Transactional
+    public void updatePhysicalInventoryBatch(PhysicalInventoryBatchUpdateDTO updateDTO) {
+        physicalInventoryMapper.updatePhysicalInventoryStateByBatchId(updateDTO.getInventoryBatchId(), updateDTO.getPiState());
+
+        if (!COMPLETED_STATE.equals(updateDTO.getPiState())) {
+            return;
+        }
+
+        if (updateDTO.getItems() == null || updateDTO.getItems().isEmpty()) {
+            throw new IllegalArgumentException("완료 상태에서는 실사 상세 항목이 필요합니다.");
+        }
+
+        for (PhysicalInventoryBatchUpdateItemDTO item : updateDTO.getItems()) {
+            if (item.getRealQuantity() == null || item.getUpdateState() == null) {
+                throw new IllegalArgumentException("완료 상태에서는 실제 수량과 조정 여부가 필요합니다.");
             }
-            int quantityDifference = updateDTO.getRealQuantity() - calculatedQuantity;
 
-            if (quantityDifference != 0) {
-                // 2-1. Product_Stock 수량 조정
-                physicalInventoryMapper.updateStockQuantity(psId, quantityDifference);
+            PhysicalInventoryUpdateDTO itemUpdate = new PhysicalInventoryUpdateDTO();
+            itemUpdate.setPiId(item.getPiId());
+            itemUpdate.setPiState(updateDTO.getPiState());
+            itemUpdate.setRealQuantity(item.getRealQuantity());
+            itemUpdate.setUpdateState(item.getUpdateState());
+            physicalInventoryMapper.updatePhysicalInventory(itemUpdate);
 
-                // 2-2. 재고 로그 기록
-                physicalInventoryMapper.insertStockLog(
-                        psId,
-                        Math.abs(quantityDifference), // 이동량의 절대값
-                        (quantityDifference > 0) ? "실사증가" : "실사감소",
-                        "정상",
-                        "실사"
-                );
-            }
+            adjustStockByItem(item.getPiId(), item.getRealQuantity(), item.getUpdateState());
+        }
+    }
+
+    private void adjustStockByItem(int piId, int realQuantity, String updateState) {
+        AdjustmentStatus adjustmentStatus = AdjustmentStatus.fromDbValue(updateState);
+        if (adjustmentStatus != AdjustmentStatus.COMPLETED) {
+            return;
+        }
+
+        Long psId = physicalInventoryMapper.getPsIdByPiId(piId);
+
+        Integer calculatedQuantity = physicalInventoryMapper.getCalculatedQuantityByPiId(piId);
+        if (calculatedQuantity == null) {
+            throw new IllegalStateException("해당 실사 ID의 계산 수량을 찾을 수 없습니다.");
+        }
+
+        int quantityDifference = realQuantity - calculatedQuantity;
+
+        if (quantityDifference != 0) {
+            physicalInventoryMapper.updateStockQuantity(psId, quantityDifference);
+
+            physicalInventoryMapper.insertStockLog(
+                    psId,
+                    Math.abs(quantityDifference),
+                    quantityDifference > 0 ? "실사증가" : "실사감소",
+                    "정상",
+                    "실사"
+            );
         }
     }
 }

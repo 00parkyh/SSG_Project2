@@ -28,6 +28,7 @@ build/
 # Package Files #
 # .war 파일은 초기 세팅에서는 제외하는 것이 좋습니다.
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 # *.war
 *.nar
 *.ear
@@ -42,3 +43,17 @@ replay_pid*
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Local IDE/server configuration
+.smarttomcat/
+.agents/
+.codex/
+
+# Local credentials and environment-specific configuration
+src/main/resources/api-keys.properties
+.env
+.env.*
+!.env.example
+
+# Accidental local command output
+et --hard 5cf79f8

@@ -1,6 +1,5 @@
 package com.ssg.wms.product_stock.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +13,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PhysicalInventoryRequest {
     private Long piId;
-    // 등록 요청 필드
+    private String inventoryBatchId;
+
+    // Registration request fields
     private LocalDate piDate;
     private String piState;
-    private Long staffId; // 담당자 ID
+    private Long staffId; // Staff ID
     private Long warehouseId;
     private Long sectionId;
-    // Mapper 내부 사용 필드 (등록 시 재고 스냅샷 저장용)
-    private Long psId; // 대상 Product_Stock ID
-    private int calculatedQuantity; // 전산 수량 (PS 테이블에서 조회된 값)
+
+    // Mapper-only fields used during registration for stock snapshot data
+    private Long psId; // Target ProductStock ID
+    private int calculatedQuantity; // Snapshot quantity from ProductStock
 }

@@ -51,8 +51,16 @@
     </select>
 
     <insert id="save" useGeneratedKeys="true" keyProperty="salesID" keyColumn="sales_id">
-        INSERT INTO Sales (warehouse_name, sales_date, category, client_name, amount, description)
-        VALUES (#{warehouseName}, #{salesDate}, #{salesCategory}, #{clientName}, #{salesAmount}, #{salesDescription})
+        INSERT INTO Sales (sales_code, warehouse_name, sales_date, category, client_name, amount, description)
+        VALUES (
+            COALESCE(#{salesCode}, CONCAT('SAL-TEMP-', UUID())),
+            #{warehouseName},
+            #{salesDate},
+            #{salesCategory},
+            #{clientName},
+            #{salesAmount},
+            #{salesDescription}
+        )
     </insert>
 
     <select id="findById" resultMap="SalesResultMap">

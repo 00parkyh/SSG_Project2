@@ -1,11 +1,11 @@
 package com.ssg.wms.admin.service;
 
 import com.ssg.wms.admin.domain.Staff;
-import com.ssg.wms.member.domain.Member;
 import com.ssg.wms.admin.dto.MemberCriteria;
-import com.ssg.wms.manager.dto.StaffDTO;
 import com.ssg.wms.admin.mappers.AdminMapper;
 import com.ssg.wms.common.AccountStatus;
+import com.ssg.wms.manager.dto.StaffDTO;
+import com.ssg.wms.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -56,9 +56,11 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Staff loginCheck(String loginId, String password) {
-        Staff staff = adminMapper.findByLoginIdAndPw(loginId, password);
-
-        return staff;
+        return adminMapper.findByLoginIdAndPw(loginId, password);
     }
 
+    @Override
+    public Staff findByLoginId(String loginId) {
+        return adminMapper.findByLoginId(loginId);
+    }
 }

@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html
         lang="en"
         class="light-style layout-menu-fixed"
@@ -60,7 +61,7 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand demo">
-                <a href="index.html" class="app-brand-link">
+                <a href="${pageContext.request.contextPath}/member" class="app-brand-link">
               <span class="app-brand-logo demo">
                 <svg
                         width="25"
@@ -128,8 +129,8 @@
 
             <ul class="menu-inner py-1">
                 <!-- Dashboard -->
-                <li class="menu-item">
-                    <a href="/member" class="menu-link">
+                <li class="menu-item ${pageActive == 'dashboard' ? 'active' : ''}">
+                    <a href="${pageContext.request.contextPath}/member" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-home-circle"></i>
                         <div data-i18n="Analytics">Dashboard</div>
                     </a>
@@ -148,18 +149,18 @@
                     <span class="menu-header-text">Member Menu</span>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'inbound_request' || pageActive == 'inbound_list') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-dock-top"></i>
                         <div data-i18n="Basic">입고 요청</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'inbound_request' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/inbound/member/request" class="menu-link">
                                 <div data-i18n="Account">요청 작성</div>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'inbound_list' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/inbound/member/list" class="menu-link">
                                 <div data-i18n="Account">요청 조회/수정/취소</div>
                             </a>
@@ -167,13 +168,13 @@
                     </ul>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'outbound_request' || pageActive == 'outbound_list' || pageActive == 'outbound_detail') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-dock-top"></i>
                         <div data-i18n="Basic">출고 요청</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${(pageActive == 'outbound_request' || pageActive == 'outbound_list' || pageActive == 'outbound_detail') ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/member/outbound/list" class="menu-link">
                                 <div data-i18n="Account">요청 관리</div>
                             </a>
@@ -181,18 +182,18 @@
                     </ul>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'warehouse_list' || pageActive == 'warehouse_location' || pageActive == 'warehouse_detail') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-dock-top"></i>
                         <div data-i18n="Basic">창고 관리</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${(pageActive == 'warehouse_list' || pageActive == 'warehouse_detail') ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/member/warehouses" class="menu-link">
                                 <div data-i18n="Account">창고 목록 조회</div>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'warehouse_location' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/member/warehouses/location" class="menu-link">
                                 <div data-i18n="Account">창고 위치 조회</div>
                             </a>
@@ -204,18 +205,18 @@
                     <span class="menu-header-text">Community</span>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item ${(pageActive == 'announcements' || pageActive == 'inquiries') ? 'active open' : ''}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons bx bx-dock-top"></i>
                         <div data-i18n="Basic">고객센터</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'announcements' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/announcements" class="menu-link">
                                 <div data-i18n="Account">공지사항</div>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item ${pageActive == 'inquiries' ? 'active' : ''}">
                             <a href="${pageContext.request.contextPath}/inquiries" class="menu-link">
                                 <div data-i18n="Account">문의사항</div>
                             </a>
@@ -283,7 +284,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/member/logout">
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/logout">
                                         <i class="bx bx-power-off me-2"></i>
                                         <span class="align-middle">Log Out</span>
                                     </a>

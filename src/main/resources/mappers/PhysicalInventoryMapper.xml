@@ -1,13 +1,64 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ssg.wms.product_stock.mappers.PhysicalInventoryMapper">
 
-<!--재고 실사-->
     <select id="selectPhysicalInventoryList" resultType="com.ssg.wms.product_stock.dto.PhysicalInventoryDTO">
         SELECT
+            MIN(PI.pi_id) AS piId,
+            PI.inventory_batch_id AS inventoryBatchId,
+            DATE_FORMAT(MIN(PI.pi_date), '%Y-%m-%d') AS piDate,
+            MAX(PI.pi_state) AS piState,
+            W.warehouse_name AS warehouseName,
+            S.section_name AS sectionName,
+            CASE
+                WHEN COUNT(*) = COUNT(CASE WHEN PI.update_state IS NOT NULL THEN 1 END)
+                    AND COUNT(DISTINCT PI.update_state) = 1
+                    THEN MAX(PI.update_state)
+                WHEN COUNT(CASE WHEN PI.update_state IS NOT NULL THEN 1 END) > 0
+                    THEN '부분 조정'
+                ELSE '*'
+            END AS adjustmentStatus
+        FROM PhysicalInventory PI
+        JOIN ProductStock PS ON PI.ps_id = PS.ps_id
+        JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+        JOIN Warehouse W ON S.warehouse_id = W.warehouse_id
+        <where>
+            <if test="warehouseId != null">
+                AND PS.warehouse_id = #{warehouseId}
+            </if>
+            <if test="sectionId != null">
+                AND PS.section_id = #{sectionId}
+            </if>
+        </where>
+        GROUP BY PI.inventory_batch_id, W.warehouse_name, S.section_name
+        ORDER BY MIN(PI.pi_date) DESC, MIN(PI.pi_id) DESC
+        LIMIT #{size} OFFSET #{skip}
+    </select>
+
+    <select id="selectPhysicalInventoryTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM (
+            SELECT PI.inventory_batch_id
+            FROM PhysicalInventory PI
+            JOIN ProductStock PS ON PI.ps_id = PS.ps_id
+            <where>
+                <if test="warehouseId != null">
+                    AND PS.warehouse_id = #{warehouseId}
+                </if>
+                <if test="sectionId != null">
+                    AND PS.section_id = #{sectionId}
+                </if>
+            </where>
+            GROUP BY PI.inventory_batch_id
+        ) AS grouped
+    </select>
+
+    <select id="selectPhysicalInventoryDetailList" resultType="com.ssg.wms.product_stock.dto.PhysicalInventoryDTO">
+        SELECT
             PI.pi_id AS piId,
+            PI.inventory_batch_id AS inventoryBatchId,
             DATE_FORMAT(PI.pi_date, '%Y-%m-%d') AS piDate,
             P.product_id AS productId,
             PI.pi_state AS piState,
@@ -18,32 +69,21 @@
             S.section_name AS sectionName,
             IFNULL(PI.update_state, '*') AS adjustmentStatus
         FROM PhysicalInventory PI
-                JOIN ProductStock PS ON PI.ps_id = PS.ps_id
-                JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
-                JOIN Warehouse W ON S.warehouse_id = W.warehouse_id
-                JOIN
-            InboundItem II ON PS.inbound_item_id = II.inbound_item_id
-                JOIN Product P ON II.product_id = P.product_id
-        ORDER BY
-            PI.pi_date DESC, PI.pi_id DESC
-        LIMIT #{size} OFFSET #{skip}
-    </select>
-
-    <select id="selectPhysicalInventoryTotalCount" resultType="int">
-        SELECT COUNT(PI.pi_id)
-        FROM PhysicalInventory PI
-                 JOIN ProductStock PS ON PI.ps_id = PS.ps_id
-                 JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
-                 JOIN Product P ON II.product_id = P.product_id
-                 JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
-                 JOIN Warehouse W ON S.warehouse_id = W.warehouse_id
+        JOIN ProductStock PS ON PI.ps_id = PS.ps_id
+        JOIN Section S ON PS.section_id = S.section_id AND PS.warehouse_id = S.warehouse_id
+        JOIN Warehouse W ON S.warehouse_id = W.warehouse_id
+        JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
+        JOIN Product P ON II.product_id = P.product_id
+        WHERE PI.inventory_batch_id = #{inventoryBatchId}
+        ORDER BY PI.pi_id ASC
     </select>
 
     <insert id="insertPhysicalInventory" useGeneratedKeys="true" keyProperty="piId">
         INSERT INTO PhysicalInventory
-            (ps_id, pi_date, pi_state, pid_quantity)
+            (inventory_batch_id, ps_id, pi_date, pi_state, pid_quantity)
         VALUES
             (
+                #{inventoryBatchId},
                 #{psId},
                 #{piDate},
                 #{piState},
@@ -54,11 +94,20 @@
     <update id="updatePhysicalInventory" parameterType="com.ssg.wms.product_stock.dto.PhysicalInventoryUpdateDTO">
         UPDATE PhysicalInventory
         SET
-            real_quantity = #{realQuantity},
-            different_quantity = #{realQuantity} - pid_quantity,
-            update_state = #{updateState}
+            pi_state = #{piState}
+        <if test='piState == "완료"'>
+            , real_quantity = #{realQuantity}
+            , different_quantity = #{realQuantity} - pid_quantity
+            , update_state = #{updateState}
+        </if>
         WHERE
             pi_id = #{piId}
+    </update>
+
+    <update id="updatePhysicalInventoryStateByBatchId">
+        UPDATE PhysicalInventory
+        SET pi_state = #{piState}
+        WHERE inventory_batch_id = #{inventoryBatchId}
     </update>
 
     <select id="getCalculatedQuantityByPiId" resultType="Integer">
@@ -77,7 +126,7 @@
             PS.warehouse_id AS warehouseId,
             PS.section_id AS sectionId
         FROM ProductStock PS
-                JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
+        JOIN InboundItem II ON PS.inbound_item_id = II.inbound_item_id
         WHERE
             PS.warehouse_id = #{warehouseId}
           AND PS.section_id = #{sectionId}

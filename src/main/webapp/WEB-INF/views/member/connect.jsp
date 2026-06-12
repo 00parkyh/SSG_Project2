@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<c:set var="pageActive" value="dashboard" scope="request"/>
+
 <%-- 헤더 include --%>
 <%@ include file="member-header.jsp" %>
 

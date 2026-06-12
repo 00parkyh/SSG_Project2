@@ -9,6 +9,7 @@ public interface MemberService {
     void insertMember(MemberDTO memberDTO);
     void updateMember(long memberId, MemberUpdateDTO memberUpdateDTO);
     MemberDTO loginCheck(String loginId, String password);
+    MemberDTO findByLoginId(String loginId);
     String getPartnerName(int partnerId);
     int getPartnerIdByBusinessNumber(String businessNumber);
 }

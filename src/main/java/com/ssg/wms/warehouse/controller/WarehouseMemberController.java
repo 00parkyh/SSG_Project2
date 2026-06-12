@@ -42,8 +42,8 @@ public class WarehouseMemberController {
 
 
     // 1. View Controller
-    // 창고 위치 조회
-    @GetMapping({"/location", ""})
+    // 창고 목록 조회
+    @GetMapping("")
     public String getWarehouseListView(
             @ModelAttribute WarehouseSearchDTO searchForm,
             Model model,
@@ -57,24 +57,47 @@ public class WarehouseMemberController {
         try {
             List<WarehouseListDTO> list = memberService.findWarehouses(searchForm);
 
+            model.addAttribute("warehouseList", list);
             model.addAttribute("tableWarehouseList", list);
-
-
-            String jsonList = objectMapper.writeValueAsString(list);
-
-            model.addAttribute("jsWarehouseData", jsonList);
-
-        } catch (JsonProcessingException e) {
-            log.error("JSON 처리 중 오류 발생: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "데이터 처리 중 오류가 발생했습니다.");
-            return "redirect:/error";
         } catch (Exception e) {
             log.error("창고 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             redirectAttributes.addFlashAttribute("error", "창고 목록을 불러오는 데 실패했습니다.");
             return "redirect:/error";
         }
 
+        model.addAttribute("userRole", "MEMBER");
         return "warehouse/list";
+    }
+
+    @GetMapping("/location")
+    public String getWarehouseLocationView(
+            @ModelAttribute WarehouseSearchDTO searchForm,
+            Model model,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
+        String auth = validateMemberAccess(session);
+        if (auth != null) return auth;
+
+        try {
+            List<WarehouseListDTO> list = memberService.findWarehouses(searchForm);
+            model.addAttribute("warehouseList", list);
+            model.addAttribute("tableWarehouseList", list);
+            model.addAttribute("userRole", "MEMBER");
+
+            String jsonList = objectMapper.writeValueAsString(list);
+            model.addAttribute("jsWarehouseData", jsonList);
+        } catch (JsonProcessingException e) {
+            log.error("JSON 처리 중 오류 발생: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "데이터 처리 중 오류가 발생했습니다.");
+            return "redirect:/error";
+        } catch (Exception e) {
+            log.error("창고 위치 조회 중 오류 발생: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "창고 위치 정보를 불러오는 데 실패했습니다.");
+            return "redirect:/error";
+        }
+
+        return "warehouse/wmap";
     }
 
 

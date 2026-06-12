@@ -28,5 +28,19 @@
     <mvc:resources mapping="/static/**" location="classpath:/static/"/>
     <mvc:resources mapping="/resources/**" location="/resources/" />
 
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.ssg.wms.config.RoleCheckInterceptor">
+                <constructor-arg>
+                    <list>
+                        <value>ADMIN</value>
+                        <value>MANAGER</value>
+                        <value>MEMBER</value>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
 
 </beans>

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %> <%-- 💡 이 한 줄만 남겨둡니다. --%>
+<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" session="false" %>
 <html
         lang="en"
         class="light-style customizer-hide"
@@ -29,30 +29,93 @@
     />
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/vendor/fonts/boxicons.css"/>
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/vendor/css/core.css"
           class="template-customizer-core-css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/vendor/css/theme-default.css"
           class="template-customizer-theme-css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/demo.css"/>
-
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/vendor/css/pages/page-auth.css"/>
     <script src="${pageContext.request.contextPath}/resources/assets/vendor/js/helpers.js"></script>
-
     <script src="${pageContext.request.contextPath}/resources/assets/js/config.js"></script>
+
+    <style>
+        .login-alert-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(17, 25, 40, 0.45);
+            z-index: 2000;
+        }
+
+        .login-alert-overlay[hidden] {
+            display: none;
+        }
+
+        .login-alert-modal {
+            width: 100%;
+            max-width: 28rem;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 1.25rem 3rem rgba(17, 25, 40, 0.18);
+            overflow: hidden;
+        }
+
+        .login-alert-body {
+            padding: 1.5rem 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .login-alert-title {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #566a7f;
+        }
+
+        .login-alert-message {
+            margin-bottom: 0.5rem;
+            color: #697a8d;
+            line-height: 1.6;
+        }
+
+        .login-alert-timer {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #a1acb8;
+        }
+
+        .login-alert-footer {
+            padding: 1rem 1.5rem 1.5rem;
+        }
+    </style>
 </head>
 
 <body>
+<div id="loginAlertOverlay" class="login-alert-overlay" hidden>
+    <div class="login-alert-modal" role="alertdialog" aria-modal="true" aria-labelledby="loginAlertTitle">
+        <div class="login-alert-body">
+            <h5 id="loginAlertTitle" class="login-alert-title">로그인 안내</h5>
+            <p id="loginAlertMessage" class="login-alert-message"></p>
+            <p id="loginAlertTimer" class="login-alert-timer"></p>
+        </div>
+        <div class="login-alert-footer">
+            <button id="loginAlertConfirm" class="btn btn-primary d-grid w-100" type="button">확인</button>
+        </div>
+    </div>
+</div>
+
 <div class="container-xxl">
     <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">
             <div class="card">
                 <div class="card-body">
                     <div class="app-brand justify-content-center">
-                        <a href="index.html" class="app-brand-link gap-2">
+                        <a href="${pageContext.request.contextPath}/login" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
                     <svg
                             width="25"
@@ -111,9 +174,8 @@
                             <span class="app-brand-text demo text-body fw-bolder">RACL</span>
                         </a>
                     </div>
-                    <h4 class="mb-2">환영해요! 👋</h4>
-                    <p class="mb-4">신속하고 정확한 창고 관리 서비스 RACL WMS와 함께 편리한 비즈니스를 시작해보세요.</p>
-                    <p class="mb-4">🚹 일반회원 로그인 페이지입니다.</p>
+                    <h4 class="mb-2">환영합니다</h4>
+                    <p class="mb-4">RACL WMS 회원 로그인 페이지입니다.</p>
 
                     <form id="formAuthentication" class="mb-3" action="/member/login" method="POST">
                         <div class="mb-3">
@@ -124,6 +186,7 @@
                                     id="loginId"
                                     name="loginId"
                                     placeholder="ID를 입력해주세요"
+                                    value="${loginId}"
                                     autofocus
                             />
                         </div>
@@ -148,12 +211,12 @@
                         </div>
                     </form>
 
-                        <p class="text-center">
-                            <span>처음이신가요? </span>
-                            <a href="/member/register">
-                                <span>회원가입</span>
-                            </a>
-                        </p>
+                    <p class="text-center">
+                        <span>처음이신가요? </span>
+                        <a href="/member/register">
+                            <span>회원가입</span>
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -164,9 +227,75 @@
 <script src="${pageContext.request.contextPath}/resources/assets/vendor/libs/popper/popper.js"></script>
 <script src="${pageContext.request.contextPath}/resources/assets/vendor/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-
 <script src="${pageContext.request.contextPath}/resources/assets/vendor/js/menu.js"></script>
 <script src="${pageContext.request.contextPath}/resources/assets/js/main.js"></script>
+
+<script>
+    (function () {
+        const alertMessage = "${alertMessage}";
+        const redirectUrl = "${redirectUrl}";
+
+        if (!alertMessage) {
+            return;
+        }
+
+        const overlay = document.getElementById("loginAlertOverlay");
+        const messageElement = document.getElementById("loginAlertMessage");
+        const timerElement = document.getElementById("loginAlertTimer");
+        const confirmButton = document.getElementById("loginAlertConfirm");
+        const hasRedirect = Boolean(redirectUrl);
+        let remainingSeconds = 10;
+        let timerId = null;
+
+        const closeAlert = function () {
+            if (timerId !== null) {
+                window.clearInterval(timerId);
+            }
+            overlay.hidden = true;
+        };
+
+        const proceed = function () {
+            if (hasRedirect) {
+                window.location.href = redirectUrl;
+                return;
+            }
+
+            closeAlert();
+        };
+
+        const renderTimerText = function () {
+            timerElement.textContent = hasRedirect
+                ? remainingSeconds + "초 뒤 해당 권한 로그인 페이지로 이동합니다."
+                : remainingSeconds + "초 뒤 안내창이 닫힙니다.";
+        };
+
+        messageElement.textContent = alertMessage;
+        overlay.hidden = false;
+        renderTimerText();
+        confirmButton.focus();
+
+        confirmButton.addEventListener("click", proceed);
+        overlay.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter") {
+                return;
+            }
+
+            event.preventDefault();
+            proceed();
+        });
+
+        timerId = window.setInterval(function () {
+            remainingSeconds -= 1;
+
+            if (remainingSeconds <= 0) {
+                proceed();
+                return;
+            }
+
+            renderTimerText();
+        }, 1000);
+    })();
+</script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
