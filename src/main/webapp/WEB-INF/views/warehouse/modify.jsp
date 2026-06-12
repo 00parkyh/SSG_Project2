@@ -7,7 +7,17 @@
 --%>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:set var="isManagerView" value="${sessionScope.role == 'MANAGER'}" />
+<c:set var="warehouseBasePath" value="${isManagerView ? '/mgr/warehouses' : '/admin/warehouses'}" />
+<c:set var="pageActive" value="warehouse_modify" scope="request"/>
+<c:choose>
+    <c:when test="${isManagerView}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:otherwise>
+</c:choose>
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,8 +40,8 @@
 <body>
 <h1 style="background-color: #f7d8b8; padding: 10px;">창고 수정</h1>
 
-<!-- 폼 Action: POST /admin/warehouses/{whid} 또는 /manager/warehouses/{whid}로 전송 -->
-<form action="${pageContext.request.contextPath}/${userRole == 'ADMIN' ? 'admin' : 'manager'}/warehouses/${detailDTO.warehouseId}" method="POST" onsubmit="return validateForm()">
+<!-- 폼 Action: POST /admin/warehouses/{whid} 또는 /mgr/warehouses/{whid}로 전송 -->
+<form action="${pageContext.request.contextPath}${warehouseBasePath}/${detailDTO.warehouseId}" method="POST" onsubmit="return validateForm()">
 
     <!-- 1. 창고 ID (수정 불가) -->
     <div style="margin-bottom: 15px;">
@@ -104,7 +114,7 @@
 
     <button type="submit" id="submitBtn" style="background-color: navy; color: white; padding: 10px 20px;">수정 완료</button>
 
-    <button type="button" onclick="location.href='${pageContext.request.contextPath}/${userRole == 'ADMIN' ? 'admin' : 'manager'}/warehouses/${detailDTO.warehouseId}'" style="background-color: darkred; color: white; padding: 10px 20px;">취소</button>
+    <button type="button" onclick="location.href='${pageContext.request.contextPath}${warehouseBasePath}/${detailDTO.warehouseId}'" style="background-color: darkred; color: white; padding: 10px 20px;">취소</button>
 </form>
 
 <!-- ... (에러 메시지 영역 유지) ... -->
@@ -140,4 +150,11 @@
 </script>
 </body>
 </html>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${isManagerView}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:otherwise>
+</c:choose>

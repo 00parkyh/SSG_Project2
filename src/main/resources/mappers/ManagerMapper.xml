@@ -20,7 +20,7 @@
     </select>
 
     <!-- 로그인 id로 직원 id 조회 -->
-    <select id="findManagerIdByManagerLoginId" resultType="long">
+    <select id="findStaffIdByStaffLoginId" resultType="long">
         SELECT staff_id
         FROM Staff
         WHERE staff_login_id = #{staffLoginId}

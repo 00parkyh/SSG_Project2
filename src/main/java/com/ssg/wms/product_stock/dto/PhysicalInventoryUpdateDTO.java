@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class PhysicalInventoryUpdateDTO {
     private int piId;
-    private int realQuantity;
-    private String updateState; // '조정 완료' 또는 '예약'
+    private String piState;
+    private Integer realQuantity;
+    private String updateState;
 }

@@ -45,13 +45,29 @@ public class WarehousesManagerController {
 
     //1. View Controller
 
-    @GetMapping({"", "/location"})
+    @GetMapping("")
     public String managerListIndex(
             @ModelAttribute("searchForm") WarehouseSearchDTO searchForm,
             Model model,
             HttpSession session) { // 세션 추가
 
         // **[세션/권한 적용]**: 매니저 권한 확인
+        String auth = validateManagerAccess(session);
+        if (auth != null) return auth;
+
+        List<WarehouseListDTO> list = memberService.findWarehouses(searchForm);
+        model.addAttribute("warehouseList", list);
+        model.addAttribute("userRole", "MANAGER");
+
+        return "warehouse/list";
+    }
+
+    @GetMapping("/location")
+    public String managerLocationIndex(
+            @ModelAttribute("searchForm") WarehouseSearchDTO searchForm,
+            Model model,
+            HttpSession session) {
+
         String auth = validateManagerAccess(session);
         if (auth != null) return auth;
 
@@ -67,7 +83,7 @@ public class WarehousesManagerController {
             model.addAttribute("jsWarehouseData", "[]");
         }
 
-        return "warehouse/list";
+        return "warehouse/wmap";
     }
 
     @GetMapping("/register")

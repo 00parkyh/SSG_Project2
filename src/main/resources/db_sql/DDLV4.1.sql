@@ -326,6 +326,7 @@ CREATE TABLE ProductStock (
 -- ===========================
 CREATE TABLE PhysicalInventory (
     pi_id int NOT NULL AUTO_INCREMENT,
+    inventory_batch_id varchar(36) NOT NULL,
     ps_id int NOT NULL,
     pi_date timestamp NOT NULL,
     pi_state varchar(30) NOT NULL,
@@ -334,6 +335,7 @@ CREATE TABLE PhysicalInventory (
     different_quantity int NULL,
     update_state varchar(30) NULL,
     PRIMARY KEY (pi_id),
+    INDEX idx_physical_inventory_batch_id (inventory_batch_id),
     CONSTRAINT FK_Product_Stock_TO_Physical_Inventory_1
         FOREIGN KEY (ps_id) REFERENCES ProductStock (ps_id)
 );

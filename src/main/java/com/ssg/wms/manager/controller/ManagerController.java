@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -45,11 +46,12 @@ public class ManagerController {
     @PostMapping("")
     public String postManagerLogin(@RequestParam("loginId") String loginId,
                                    @RequestParam String password,
-                                   HttpSession session,
+                                   HttpServletRequest request,
                                    Model model) {
 
         StaffDTO manager = managerService.loginCheck(loginId, password);
         if (manager != null) {
+            HttpSession session = request.getSession(true);
             session.setAttribute("loginManager", manager);
             session.setAttribute("loginId", loginId);
             session.setAttribute("role", manager.getRole());
@@ -74,12 +76,6 @@ public class ManagerController {
         session.setAttribute("loginManager", staffDTO);
         model.addAttribute("loginManager", staffDTO);
         return "warehousemanager/mypage";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
     }
 
     private void prepareLoginFailure(String loginId, String password, Model model) {

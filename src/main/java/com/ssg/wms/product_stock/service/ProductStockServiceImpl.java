@@ -41,6 +41,11 @@ public class ProductStockServiceImpl implements ProductStockService{
     }
 
     @Override
+    public List<DropdownDTO> sectionDropDownByWarehouseId(Long warehouseId) {
+        return dropDownMapper.sectionDropDownByWarehouseId(warehouseId);
+    }
+
+    @Override
     public PageResponseDTO<StockInfoDTO> getStockList(PageRequestDTO pageRequestDTO) {
 
         pageRequestDTO.normalize();
@@ -98,5 +103,49 @@ public class ProductStockServiceImpl implements ProductStockService{
         productStockMapper.updateStockQuantity(psId, newQuantity);
 
         log.info("재고 차감 완료 - psId: {}, 차감량: {}, 잔여량: {}", psId, quantity, newQuantity);
+    }
+
+    @Override
+    @Transactional
+    public void decreaseStockByProduct(Long warehouseId, String productId, int quantity) {
+        if (warehouseId == null) {
+            throw new IllegalArgumentException("warehouseId is required.");
+        }
+        if (productId == null || productId.trim().isEmpty()) {
+            throw new IllegalArgumentException("productId is required.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be positive.");
+        }
+
+        List<StockInfoDTO> stocks = productStockMapper.selectStocksForUpdateByWarehouseAndProduct(warehouseId, productId);
+        int availableQuantity = stocks.stream().mapToInt(StockInfoDTO::getQuantity).sum();
+
+        if (availableQuantity < quantity) {
+            throw new RuntimeException("Insufficient stock. productId=" + productId
+                    + ", requested=" + quantity
+                    + ", available=" + availableQuantity);
+        }
+
+        int remainingQuantity = quantity;
+        for (StockInfoDTO stock : stocks) {
+            if (remainingQuantity == 0) {
+                break;
+            }
+
+            int deductedQuantity = Math.min(stock.getQuantity(), remainingQuantity);
+            int updatedQuantity = stock.getQuantity() - deductedQuantity;
+
+            productStockMapper.updateStockQuantity(stock.getPsId().intValue(), updatedQuantity);
+            productStockMapper.insertStockLog(
+                    stock.getPsId(),
+                    -deductedQuantity,
+                    "OUTBOUND",
+                    updatedQuantity == 0 ? "OUT_OF_STOCK" : stock.getProductStatus(),
+                    "출고"
+            );
+
+            remainingQuantity -= deductedQuantity;
+        }
     }
 }

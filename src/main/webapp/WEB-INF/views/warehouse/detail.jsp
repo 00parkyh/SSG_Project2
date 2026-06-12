@@ -1,7 +1,21 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:set var="isManagerView" value="${sessionScope.role == 'MANAGER'}" />
+<c:set var="isMemberView" value="${sessionScope.role == 'MEMBER'}" />
+<c:set var="warehouseBasePath" value="${isManagerView ? '/mgr/warehouses' : (isMemberView ? '/member/warehouses' : '/admin/warehouses')}" />
+<c:set var="pageActive" value="warehouse_detail" scope="request"/>
+<c:choose>
+  <c:when test="${isManagerView}">
+    <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+  </c:when>
+  <c:when test="${isMemberView}">
+    <jsp:include page="/WEB-INF/views/member/member-header.jsp" />
+  </c:when>
+  <c:otherwise>
+    <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+  </c:otherwise>
+</c:choose>
 
 <!DOCTYPE html>
 <html>
@@ -153,7 +167,7 @@
 <c:if test="${userRole == 'ADMIN' || userRole == 'MANAGER'}">
   <div class="action-buttons">
     <button onclick="showDeleteModal()" style="background-color: darkred; color: white;">삭제</button>
-    <button onclick="location.href='${pageContext.request.contextPath}/admin/warehouses'" style="background-color: navy; color: white;">목록으로</button>
+    <button onclick="location.href='${pageContext.request.contextPath}${warehouseBasePath}'" style="background-color: navy; color: white;">목록으로</button>
   </div>
 </c:if>
 
@@ -173,7 +187,7 @@
       이 작업은 되돌릴 수 없으며, 모든 관련 데이터가 영구적으로 삭제됩니다.
     </p>
 
-    <form action="${pageContext.request.contextPath}/${userRole == 'ADMIN' ? 'admin' : 'manager'}/warehouses/${detail.warehouseId}/delete" method="POST" style="text-align: center;">
+    <form action="${pageContext.request.contextPath}${warehouseBasePath}/${detail.warehouseId}/delete" method="POST" style="text-align: center;">
       <button type="submit" style="background-color: darkred; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px; transition: background-color 0.3s ease;">영구 삭제</button>
       <button type="button" onclick="hideDeleteModal()" style="background-color: #ccc; color: #333; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.3s ease;">취소</button>
     </form>
@@ -208,4 +222,14 @@
 </script>
 </body>
 </html>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+  <c:when test="${isManagerView}">
+    <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+  </c:when>
+  <c:when test="${isMemberView}">
+    <jsp:include page="/WEB-INF/views/member/member-footer.jsp" />
+  </c:when>
+  <c:otherwise>
+    <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+  </c:otherwise>
+</c:choose>

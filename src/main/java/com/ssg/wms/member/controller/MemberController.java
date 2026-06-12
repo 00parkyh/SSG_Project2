@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.Map;
@@ -51,14 +52,14 @@ public class MemberController {
     @PostMapping("/login")
     public String postMemberLogin(@RequestParam("loginId") String loginId,
                                   @RequestParam String password,
-                                  HttpSession session,
+                                  HttpServletRequest request,
                                   Model model) {
         MemberDTO member = memberService.loginCheck(loginId, password);
-        log.info("(중요) 세션 로그: " + session.getAttribute("role"));
 
         if (member != null) {
             String partnerName = memberService.getPartnerName(member.getPartnerId());
 
+            HttpSession session = request.getSession(true);
             session.setAttribute("loginMember", member);
             log.info("세션 로그: " + member);
             session.setAttribute("partnerName", partnerName);
@@ -122,12 +123,6 @@ public class MemberController {
         session.setAttribute("loginMember", memberDTO);
         model.addAttribute("loginMember", memberDTO);
         return "member/mypage";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
     }
 
     @PostMapping("/update")

@@ -54,7 +54,7 @@
                     </div>
                     <div>
                         <label class="form-label">섹션 이름</label>
-                        <select id="sectionName" name="sectionId" class="form-select">
+                        <select id="sectionName" name="sectionId" class="form-select" disabled>
                             <option value="">선택</option>
                             <c:forEach var="item" items="${sectionList}">
                                 <option value="${item.id}">${item.name}</option>
@@ -133,6 +133,56 @@
 </c:choose>
 
 <script>
+
+    function resetSectionOptions(placeholder) {
+        const sectionSelect = document.getElementById('sectionName');
+        sectionSelect.innerHTML = '<option value="">' + placeholder + '</option>';
+        sectionSelect.disabled = true;
+    }
+
+    function populateSectionOptions(sectionList) {
+        const sectionSelect = document.getElementById('sectionName');
+        sectionSelect.innerHTML = '<option value="">선택</option>';
+
+        sectionList.forEach(function (item) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            sectionSelect.appendChild(option);
+        });
+
+        sectionSelect.disabled = false;
+    }
+
+    function loadSectionsByWarehouse(warehouseId) {
+        if (!warehouseId) {
+            resetSectionOptions('창고를 먼저 선택해주세요');
+            return Promise.resolve();
+        }
+
+        resetSectionOptions('섹션 정보를 불러오는 중입니다...');
+
+        return fetch('/stock/sections?warehouseId=' + encodeURIComponent(warehouseId))
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+
+                return response.json();
+            })
+            .then(function (sectionList) {
+                if (!sectionList || sectionList.length === 0) {
+                    resetSectionOptions('선택 가능한 섹션이 없습니다');
+                    return;
+                }
+
+                populateSectionOptions(sectionList);
+            })
+            .catch(function (error) {
+                console.error('섹션 목록 조회 실패:', error);
+                resetSectionOptions('섹션 목록 조회 실패');
+            });
+    }
 
     function getSearchParams(page) {
         // null 대신 빈 문자열을 허용하여 URLSearchParams가 값이 없는 파라미터를 생략하도록 합니다.
@@ -264,6 +314,19 @@
     }
     document.addEventListener('DOMContentLoaded', function() {
         console.log("페이지 로드 완료 이벤트 발생, 초기 검색 시작.");
+        const warehouseSelect = document.getElementById('warehouseName');
+        const stockSearchForm = document.getElementById('stockSearchForm');
+
+        warehouseSelect.addEventListener('change', function () {
+            loadSectionsByWarehouse(this.value);
+        });
+
+        stockSearchForm.addEventListener('reset', function () {
+            window.setTimeout(function () {
+                resetSectionOptions('창고를 먼저 선택해주세요');
+            }, 0);
+        });
+
         searchStock(1);
     });
 </script>

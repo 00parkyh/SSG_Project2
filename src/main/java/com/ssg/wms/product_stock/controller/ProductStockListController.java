@@ -25,7 +25,7 @@ public class ProductStockListController {
         List<DropdownDTO> categoryList = productStockService.categoryDropDown();
         List<DropdownDTO> brandList = productStockService.brandDropDown();
         List<DropdownDTO> warehouseList = productStockService.warehouseDropDown();
-        List<DropdownDTO> sectionList = productStockService.sectionDropDown();
+        List<DropdownDTO> sectionList = Collections.emptyList();
 
         model.addAttribute("categoryList", categoryList);
         model.addAttribute("brandList", brandList);
@@ -36,6 +36,16 @@ public class ProductStockListController {
         model.addAttribute("responseDTO", responseDTO);
 
         return "stock/stock-list";
+    }
+
+    @GetMapping("/sections")
+    @ResponseBody
+    public List<DropdownDTO> getSectionsByWarehouse(@RequestParam(required = false) Long warehouseId) {
+        if (warehouseId == null) {
+            return Collections.emptyList();
+        }
+
+        return productStockService.sectionDropDownByWarehouseId(warehouseId);
     }
 
     @GetMapping("/search") // 💡 새로운 엔드포인트

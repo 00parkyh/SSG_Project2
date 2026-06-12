@@ -1,12 +1,14 @@
 package com.ssg.wms.product_stock.mappers;
 
-import com.ssg.wms.product_stock.dto.*;
+import com.ssg.wms.product_stock.dto.PageRequestDTO;
+import com.ssg.wms.product_stock.dto.StockInfoDTO;
+import com.ssg.wms.product_stock.dto.StockLogDTO;
+import com.ssg.wms.product_stock.dto.StockSummaryDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-//재고 조회
 @Mapper
 public interface ProductStockMapper {
 
@@ -14,15 +16,20 @@ public interface ProductStockMapper {
 
     int countStockList(PageRequestDTO pageRequestDTO);
 
-    /** 특정 상품 ID에 대한 상세 정보 (현재 재고, 위치 등)를 조회 */
     StockSummaryDTO getProductSummaryById(String productId);
 
-    /** 특정 상품 ID에 대한 재고 이동 로그 목록을 조회 */
     List<StockLogDTO> getStockMovementLogs(String productId);
 
-    //동시성 제어 | 비관적 락을 사용해서 재고 조회
-    StockInfoDTO selectStockForUpdate(int psdId);
+    StockInfoDTO selectStockForUpdate(@Param("psId") int psId);
 
-    //재고 수량 변경 (차감 또는 증가)
-    int updateStockQuantity(int psId, int quantity);
+    List<StockInfoDTO> selectStocksForUpdateByWarehouseAndProduct(@Param("warehouseId") Long warehouseId,
+                                                                  @Param("productId") String productId);
+
+    int updateStockQuantity(@Param("psId") int psId, @Param("quantity") int quantity);
+
+    int insertStockLog(@Param("psId") long psId,
+                       @Param("moveQuantity") int moveQuantity,
+                       @Param("eventType") String eventType,
+                       @Param("productStatus") String productStatus,
+                       @Param("destination") String destination);
 }

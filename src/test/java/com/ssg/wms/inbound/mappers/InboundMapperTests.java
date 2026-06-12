@@ -36,14 +36,14 @@ public class InboundMapperTests {
         List<InboundItemVO> inboundItems = new ArrayList<>();
         inboundItems.add(
                 InboundItemVO.builder()
-                        .productId("P001")
+                        .productId("NK-SS-01")
                         .quantity(10)
                         .build()
         );
 
         inboundItems.add(
                 InboundItemVO.builder()
-                        .productId("P001")
+                        .productId("NK-SS-01")
                         .quantity(5)
                         .build()
         );

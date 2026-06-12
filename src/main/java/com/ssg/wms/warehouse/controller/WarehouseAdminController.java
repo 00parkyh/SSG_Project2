@@ -45,7 +45,7 @@ public class WarehouseAdminController {
 
     // - 1. View Controlle
 
-    @GetMapping({"", "/location"})
+    @GetMapping("")
     public String adminListIndex(
             @ModelAttribute("searchForm") WarehouseSearchDTO searchForm,
             Model model,
@@ -60,6 +60,21 @@ public class WarehouseAdminController {
         model.addAttribute("warehouseList", list);
         model.addAttribute("userRole", "ADMIN");
 
+        return "warehouse/list";
+    }
+
+    @GetMapping("/location")
+    public String adminLocationIndex(
+            @ModelAttribute("searchForm") WarehouseSearchDTO searchForm,
+            Model model,
+            HttpSession session) {
+
+        String auth = validateAdminAccess(session);
+        if (auth != null) return auth;
+
+        List<WarehouseListDTO> list = warehouseAdminService.findWarehouses(searchForm);
+        model.addAttribute("warehouseList", list);
+        model.addAttribute("userRole", "ADMIN");
 
         try {
             String jsonList = objectMapper.writeValueAsString(list);
@@ -69,7 +84,7 @@ public class WarehouseAdminController {
             model.addAttribute("jsWarehouseData", "[]");
         }
 
-        return "warehouse/list";
+        return "warehouse/wmap";
     }
 
     @GetMapping("/register")

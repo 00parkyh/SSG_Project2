@@ -27,7 +27,7 @@ public class KakaoApiUtil {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public KakaoApiUtil(@Value("${kakao.api.rest-key}") String kakaoRestApiKey) {
+    public KakaoApiUtil(@Value("${kakao.api.rest-key:}") String kakaoRestApiKey) {
         this.KAKAO_REST_API_KEY = kakaoRestApiKey;
     }
 

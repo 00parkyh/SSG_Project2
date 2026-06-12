@@ -1,0 +1,4 @@
+kakao.api.rest-key=YOUR_KAKAO_REST_API_KEY
+wms.db.url=jdbc:mysql://localhost:3307/wmsfinaldb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+wms.db.username=YOUR_DB_USERNAME
+wms.db.password=YOUR_DB_PASSWORD

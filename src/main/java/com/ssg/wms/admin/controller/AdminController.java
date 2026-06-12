@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class AdminController {
     @PostMapping("/login")
     public String postAdminLogin(@RequestParam("loginId") String loginId,
                                  @RequestParam String password,
-                                 HttpSession session,
+                                 HttpServletRequest request,
                                  Model model) {
         Staff staff = adminService.loginCheck(loginId, password);
         if (staff != null) {
@@ -64,6 +65,7 @@ public class AdminController {
                 return "admin/login";
             }
 
+            HttpSession session = request.getSession(true);
             session.setAttribute("loginStaff", staff);
             session.setAttribute("loginId", loginId);
             session.setAttribute("role", staff.getRole());
@@ -137,12 +139,6 @@ public class AdminController {
         log.info("Rejecting member " + memberId);
         adminService.changeMemberStatus(memberId, AccountStatus.REJECTED);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
     }
 
     private void prepareLoginFailure(String loginId, String password, Model model) {

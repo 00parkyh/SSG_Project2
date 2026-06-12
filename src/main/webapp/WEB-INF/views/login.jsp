@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 
@@ -139,7 +139,7 @@
 <script src="<c:url value='/resources/assets/vendor/libs/popper/popper.js'/>"></script>
 <script src="<c:url value='/resources/assets/vendor/js/bootstrap.js'/>"></script>
 <script src="<c:url value='/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'/>"></script>
-<script src="<cm:url value='/resources/assets/vendor/js/menu.js'/>"></script>
+<script src="<c:url value='/resources/assets/vendor/js/menu.js'/>"></script>
 <script src="<c:url value='/resources/assets/js/main.js'/>"></script>
 </body>
 </html>

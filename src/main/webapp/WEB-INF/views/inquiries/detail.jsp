@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
+<c:set var="pageActive" value="inquiries" scope="request"/>
 <c:choose>
     <c:when test="${sessionScope.role eq 'ADMIN'}">
         <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />

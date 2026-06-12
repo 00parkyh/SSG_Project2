@@ -1,6 +1,17 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:set var="pageActive" value="announcements" scope="request"/>
+<c:choose>
+    <c:when test="${sessionScope.role eq 'ADMIN'}">
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:when>
+    <c:when test="${sessionScope.role eq 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/member/member-header.jsp" />
+    </c:otherwise>
+</c:choose>
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="fw-bold py-3 mb-4">
         <span class="text-muted fw-light">커뮤니티 / 공지사항 /</span> 작성
@@ -98,4 +109,14 @@
     </div>
 </div>
 
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${sessionScope.role eq 'ADMIN'}">
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:when>
+    <c:when test="${sessionScope.role eq 'MANAGER'}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/member/member-footer.jsp" />
+    </c:otherwise>
+</c:choose>

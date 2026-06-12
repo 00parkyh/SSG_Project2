@@ -1,6 +1,16 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="../admin/admin-header.jsp" %>
+<c:set var="isManagerView" value="${sessionScope.role == 'MANAGER'}" />
+<c:set var="warehouseBasePath" value="${isManagerView ? '/mgr/warehouses' : '/admin/warehouses'}" />
+<c:set var="pageActive" value="warehouse_register" scope="request"/>
+<c:choose>
+    <c:when test="${isManagerView}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-header.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-header.jsp" />
+    </c:otherwise>
+</c:choose>
 <!DOCTYPE html>
 <html>
 <head>
@@ -251,7 +261,7 @@
         </div>
     </c:if>
 
-    <form id="warehouseRegisterForm" action="${pageContext.request.contextPath}/admin/warehouses/register" method="post" onsubmit="return validateForm();">
+    <form id="warehouseRegisterForm" action="${pageContext.request.contextPath}${warehouseBasePath}/register" method="post" onsubmit="return validateForm();">
 
         <h2>창고 기본 정보</h2>
 
@@ -379,7 +389,7 @@
 
         <div class="form-buttons">
             <button type="submit" class="submit">창고 등록</button>
-            <button type="button" class="cancel" onclick="location.href='${pageContext.request.contextPath}/admin/warehouses'">취소</button>
+            <button type="button" class="cancel" onclick="location.href='${pageContext.request.contextPath}${warehouseBasePath}'">취소</button>
         </div>
 
     </form>
@@ -402,7 +412,7 @@
         }
 
         // Controller의 실제 매핑 경로를 CONTEXT_PATH와 결합합니다.
-        const url = CONTEXT_PATH + '/admin/warehouses/api/check/name';
+        const url = CONTEXT_PATH + '${warehouseBasePath}/api/check/name';
 
         $.ajax({
             url: url,
@@ -585,4 +595,11 @@
 
 </body>
 </html>
-<%@ include file="../admin/admin-footer.jsp" %>
+<c:choose>
+    <c:when test="${isManagerView}">
+        <jsp:include page="/WEB-INF/views/warehousemanager/manager-footer.jsp" />
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="/WEB-INF/views/admin/admin-footer.jsp" />
+    </c:otherwise>
+</c:choose>

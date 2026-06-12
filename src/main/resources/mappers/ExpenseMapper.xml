@@ -49,8 +49,15 @@
     </select>
 
     <insert id="save" useGeneratedKeys="true" keyProperty="expenseID" keyColumn="expense_id">
-        INSERT INTO Expense (warehouse_name, expense_date, category, amount, description)
-        VALUES (#{warehouseName}, #{expenseDate}, #{expenseCategory}, #{expenseAmount}, #{expenseDescription})
+        INSERT INTO Expense (expense_code, warehouse_name, expense_date, category, amount, description)
+        VALUES (
+            COALESCE(#{expenseCode}, CONCAT('EXP-TEMP-', UUID())),
+            #{warehouseName},
+            #{expenseDate},
+            #{expenseCategory},
+            #{expenseAmount},
+            #{expenseDescription}
+        )
     </insert>
 
     <select id="findById" resultMap="ExpenseResultMap">

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" session="false" %>
 <html
         lang="en"
         class="light-style customizer-hide"
@@ -266,8 +266,17 @@
         messageElement.textContent = alertMessage;
         overlay.hidden = false;
         renderTimerText();
+        confirmButton.focus();
 
         confirmButton.addEventListener("click", proceed);
+        overlay.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter") {
+                return;
+            }
+
+            event.preventDefault();
+            proceed();
+        });
 
         timerId = window.setInterval(function () {
             remainingSeconds -= 1;
